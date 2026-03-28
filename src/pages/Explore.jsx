@@ -71,9 +71,12 @@ function ExploreToolbar({
     'flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-charcoal shadow-md ring-1 ring-charcoal/10 backdrop-blur-md transition hover:bg-white lg:h-11 lg:w-11'
   return (
     <>
-      <header className="relative z-10 flex items-center justify-between px-4 pt-4 text-charcoal drop-shadow-sm lg:px-6 lg:pt-6">
-        <h1 className="font-heading text-lg font-bold lg:text-2xl">Explore map</h1>
-        <div className="flex items-center gap-2">
+      <header className="relative z-10 flex items-start justify-between gap-3 px-4 pt-4 text-charcoal drop-shadow-sm lg:px-6 lg:pt-6">
+        <div className="min-w-0 flex-1">
+          <h1 className="font-heading text-lg font-bold lg:text-2xl">Explore map</h1>
+          <p className="mt-1 text-xs font-medium text-charcoal/55 lg:text-sm">Choose bike type below:</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={onSearchToggle}

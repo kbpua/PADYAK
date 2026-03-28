@@ -11,6 +11,9 @@ import { PostRideReviewPage } from './pages/PostRideReviewPage'
 import { Dashboard } from './pages/Dashboard'
 import { ListBike } from './pages/ListBike'
 import { Profile } from './pages/Profile'
+import { NotificationsPage } from './pages/NotificationsPage'
+import { HelpSupportPage } from './pages/HelpSupportPage'
+import { PaymentMethodsPage } from './pages/PaymentMethodsPage'
 import { KalsadaReports } from './pages/KalsadaReports'
 import { Activity } from './pages/Activity'
 import { MessagesLayout } from './pages/MessagesLayout'
@@ -46,6 +49,9 @@ export function AuthenticatedAppRoutes() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/list-bike" element={<ListBike />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/notifications" element={<NotificationsPage />} />
+      <Route path="/profile/payment-methods" element={<PaymentMethodsPage />} />
+      <Route path="/profile/help" element={<HelpSupportPage />} />
       <Route path="/kalsada" element={<KalsadaReports />} />
       <Route path="/activity" element={<Activity />} />
       <Route path="/messages" element={<MessagesLayout />}>

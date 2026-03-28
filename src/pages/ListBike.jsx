@@ -7,6 +7,15 @@ import { DAY_KEYS } from '../lib/bikeAvailability'
 
 const steps = ['Photos', 'Details', 'Pricing', 'Availability', 'Location']
 
+/** One line per step — what to do right now */
+const stepGuidance = [
+  'Add at least one photo from your device (tap the dashed box). Clear shots of the whole bike help renters decide faster.',
+  'Give your listing a name renters will recognize, then choose type, condition, gears, and frame size. Add a short honest description.',
+  'Set your hourly and daily rates in pesos. Daily should usually be higher than a single hour — use the suggestion if it helps.',
+  'Tap days you can usually hand off the bike, then pick a typical time window. You can refine this with renters in chat later.',
+  'Type a landmark or street near where you meet renters, or use “my area” for a quick demo pin on the map.',
+]
+
 const LISTING_COLORS = ['#22C55E', '#14B8A6', '#3B82F6', '#F59E0B', '#A855F7', '#EC4899']
 
 const TIME_WINDOWS = [
@@ -260,9 +269,18 @@ export function ListBike() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-4 lg:max-w-[min(1200px,100%)] lg:px-6 lg:pb-10 lg:pt-5 xl:px-8">
       <div className="lg:rounded-2xl lg:bg-white lg:p-6 lg:shadow-md lg:ring-1 lg:ring-charcoal/5 xl:p-7">
-        <div className="mb-6 flex items-center justify-between lg:mb-5">
-          <h1 className="font-heading text-lg font-extrabold text-charcoal lg:text-2xl">List your bike</h1>
-          <span className="rounded-full bg-charcoal/10 px-3 py-1 text-xs font-bold text-charcoal/55 lg:text-sm">
+        <div className="mb-5 flex items-start justify-between gap-4 lg:mb-5">
+          <div className="min-w-0">
+            <h1 className="font-heading text-lg font-extrabold text-charcoal lg:text-2xl">List your bike</h1>
+            <p className="mt-1.5 text-sm leading-snug text-charcoal/55 lg:mt-2 lg:max-w-2xl lg:text-[15px]">
+              Put your bike on Padyak so nearby renters can discover it, see your rates, and message you to book. You
+              stay in control of pickup details and availability.
+            </p>
+          </div>
+          <span
+            className="shrink-0 rounded-full bg-charcoal/10 px-3 py-1.5 text-xs font-bold tabular-nums text-charcoal/60 lg:py-2 lg:text-sm"
+            aria-label={`Step ${step + 1} of ${steps.length}`}
+          >
             {step + 1}/{steps.length}
           </span>
         </div>
@@ -272,10 +290,15 @@ export function ListBike() {
             style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
-        <div className="mb-6 flex flex-wrap justify-between gap-x-2 gap-y-2 text-[10px] font-bold uppercase tracking-wide text-charcoal/40 lg:mb-5 lg:justify-start lg:gap-5 lg:text-xs">
+        <div className="mb-5 flex flex-wrap justify-between gap-x-1 gap-y-2 text-[10px] font-bold uppercase tracking-wide text-charcoal/40 lg:mb-5 lg:justify-start lg:gap-4 lg:text-xs">
           {steps.map((s, i) => (
-            <span key={s} className={i === step ? 'text-primary' : ''}>
-              {s}
+            <span
+              key={s}
+              className={`inline-flex items-baseline gap-1 ${i === step ? 'text-primary' : ''}`}
+              aria-current={i === step ? 'step' : undefined}
+            >
+              <span className="font-mono-data tabular-nums opacity-70">{i + 1}</span>
+              <span>{s}</span>
             </span>
           ))}
         </div>
@@ -294,10 +317,19 @@ export function ListBike() {
             exit={{ opacity: 0, x: -16 }}
             className="min-h-[320px] space-y-4 lg:min-h-[300px] lg:space-y-4 xl:min-h-[320px]"
           >
+          <div className="rounded-2xl bg-primary/[0.07] px-4 py-3 ring-1 ring-primary/15 lg:px-5 lg:py-4">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-primary lg:text-xs">
+              Step {step + 1} · {steps[step]}
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-charcoal/70 lg:text-[15px]">{stepGuidance[step]}</p>
+          </div>
+
           {step === 0 && (
             <>
-              <p className="text-sm text-charcoal/60 lg:text-base">
-                Add up to 5 clear photos (frame, tires, drivetrain).{' '}
+              <p className="text-sm font-medium text-charcoal/75 lg:text-base">
+                <span className="font-heading font-bold text-charcoal">What to do:</span> Tap{' '}
+                <span className="whitespace-nowrap font-semibold text-charcoal">&quot;Choose photos&quot;</span> below
+                to open your gallery or file picker. Add up to 5 (frame, tires, drivetrain).{' '}
                 <span className="font-bold text-red-600">*</span>
                 <span className="sr-only"> Required: at least one photo.</span>
               </p>
@@ -315,31 +347,43 @@ export function ListBike() {
                 className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-charcoal/20 py-12 text-charcoal/50 transition hover:border-primary/40 hover:bg-primary/5 lg:min-h-[220px] lg:py-16"
               >
                 <Camera className="h-10 w-10 lg:h-12 lg:w-12" />
-                <span className="text-sm font-semibold lg:text-base">Upload photos</span>
-                <span className="text-xs text-charcoal/40 lg:text-sm">JPEG / PNG · max 5</span>
+                <span className="text-sm font-semibold text-charcoal/80 lg:text-base">Choose photos</span>
+                <span className="max-w-[240px] text-center text-xs leading-snug text-charcoal/45 lg:max-w-xs lg:text-sm">
+                  Opens your device&apos;s photo picker · JPEG or PNG · up to 5 images
+                </span>
               </button>
               {form.photos.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:max-w-3xl">
-                  {form.photos.map((src, i) => (
-                    <div key={i} className="relative aspect-square overflow-hidden rounded-xl ring-1 ring-charcoal/10">
-                      <img src={src} alt="" className="h-full w-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(i)}
-                        className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-charcoal/80 text-white shadow-md"
-                        aria-label="Remove photo"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <p className="text-xs text-charcoal/50 lg:text-sm">
+                    Tap <span className="font-semibold text-charcoal/65">✕</span> on a thumbnail to remove it. Add more
+                    until you&apos;re happy (max 5).
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:max-w-3xl">
+                    {form.photos.map((src, i) => (
+                      <div key={i} className="relative aspect-square overflow-hidden rounded-xl ring-1 ring-charcoal/10">
+                        <img src={src} alt="" className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(i)}
+                          className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-charcoal/80 text-white shadow-md"
+                          aria-label="Remove photo"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </>
           )}
 
           {step === 1 && (
             <>
+              <p className="text-sm font-medium text-charcoal/75">
+                <span className="font-heading font-bold text-charcoal">Tip:</span> Match the name on your frame or
+                receipt so renters can search for it.
+              </p>
               <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
                 <div className="lg:col-span-2">
                   <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
@@ -353,7 +397,9 @@ export function ListBike() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">Type</label>
+                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
+                    Type <span className="font-normal normal-case text-charcoal/40">(bike style)</span>
+                  </label>
                   <select
                     value={form.type}
                     onChange={(e) => update({ type: e.target.value })}
@@ -430,6 +476,10 @@ export function ListBike() {
 
           {step === 2 && (
             <>
+              <p className="text-sm text-charcoal/65 lg:text-[15px]">
+                Renters compare prices here — both fields are required. Your daily rate should cover a full day, not
+                just one hour.
+              </p>
               <div className="grid gap-4 lg:grid-cols-2 lg:gap-8">
                 <div>
                   <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
@@ -482,8 +532,9 @@ export function ListBike() {
 
           {step === 3 && (
             <>
-              <p className="text-sm text-charcoal/60">
-                Choose days you&apos;re usually available for pickup.{' '}
+              <p className="text-sm font-medium text-charcoal/75">
+                <span className="font-heading font-bold text-charcoal">Tap a day</span> to toggle it on (green) or off
+                (gray). You need at least one day. Then choose the usual handoff time band.{' '}
                 <span className="font-bold text-red-600">*</span>
                 <span className="sr-only"> At least one day required.</span>
               </p>
@@ -503,7 +554,9 @@ export function ListBike() {
                   </button>
                 ))}
               </div>
-              <label className="block text-xs font-bold uppercase text-charcoal/45">Typical pickup window</label>
+              <label className="block text-xs font-bold uppercase text-charcoal/45">
+                Typical pickup window <span className="font-normal normal-case text-charcoal/40">(when you&apos;re free)</span>
+              </label>
               <select
                 value={form.timeWindow}
                 onChange={(e) => update({ timeWindow: e.target.value })}
@@ -520,6 +573,10 @@ export function ListBike() {
 
           {step === 4 && (
             <>
+              <p className="text-sm text-charcoal/65 lg:text-[15px]">
+                Renters see this on the listing. Be specific enough to find you (gate, building, street corner). The
+                map uses this text when you publish.
+              </p>
               <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
                 Pickup address or landmark <span className="text-red-600">*</span>
               </label>
@@ -552,6 +609,7 @@ export function ListBike() {
           type="button"
           onClick={back}
           disabled={step === 0}
+          title={step === 0 ? 'You are on the first step' : undefined}
           className="rounded-xl px-5 py-3 text-sm font-bold text-charcoal/50 disabled:opacity-30 lg:px-8 lg:text-base"
         >
           Back
@@ -559,9 +617,11 @@ export function ListBike() {
         <button
           type="button"
           onClick={next}
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-heading text-sm font-bold text-white shadow-lg shadow-primary/25 active:scale-[0.98] lg:max-w-sm lg:flex-none lg:px-8 lg:py-3 lg:text-sm"
+          className="flex flex-1 items-center justify-center gap-2 text-balance rounded-full bg-primary py-3.5 font-heading text-sm font-bold text-white shadow-lg shadow-primary/25 active:scale-[0.98] lg:max-w-sm lg:flex-none lg:px-8 lg:py-3 lg:text-sm"
         >
-          {step === steps.length - 1 ? 'Publish listing' : 'Continue'}
+          {step === steps.length - 1
+            ? 'Publish listing'
+            : `Continue to ${steps[step + 1]}`}
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>

@@ -7,6 +7,7 @@ import { BookingContextBanner } from '../components/messages/BookingContextBanne
 import { ChatThread } from '../components/messages/ChatThread'
 import { MessageInput } from '../components/messages/MessageInput'
 import { QuickReplies } from '../components/messages/QuickReplies'
+import { getOwnerReplyForQuickText } from '../data/quickReplyResponses'
 
 export function ChatPage() {
   const { chatId } = useParams()
@@ -45,6 +46,20 @@ export function ChatPage() {
     sendUserMessage(chatId, text)
     setUsedQuick((s) => new Set(s).add(text))
     setTimeout(scrollToBottom, 80)
+
+    const ownerReply = getOwnerReplyForQuickText(text)
+    if (ownerReply) {
+      const delayMs = 700 + Math.random() * 900
+      window.setTimeout(() => {
+        addMessage(chatId, {
+          type: 'text',
+          sender: 'other',
+          text: ownerReply,
+        })
+        markRead(chatId)
+        setTimeout(scrollToBottom, 80)
+      }, delayMs)
+    }
   }
 
   const handleAttachment = (id) => {

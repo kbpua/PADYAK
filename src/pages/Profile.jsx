@@ -22,18 +22,18 @@ export function Profile() {
   const renter = profileRole === 'renter'
 
   const menuRows = [
-    { label: 'Payment methods', icon: CreditCard },
+    { to: '/profile/payment-methods', label: 'Payment methods', icon: CreditCard },
     {
       label: 'ID Verification',
       icon: Shield,
       extra: 'Verified',
       extraClass: 'text-primary',
     },
-    { label: 'Notifications', icon: Bell },
+    { to: '/profile/notifications', label: 'Notifications', icon: Bell },
     { to: '/messages', label: 'My messages', icon: MessageCircle },
     { to: '/activity', label: 'Trip history & activity', icon: Clock },
     { to: '/kalsada', label: 'Kalsada Reports history', icon: History },
-    { label: 'Help & Support', icon: HelpCircle },
+    { to: '/profile/help', label: 'Help & Support', icon: HelpCircle },
   ]
 
   return (

@@ -28,27 +28,44 @@ export function ImpactStats() {
   const trees = useCountUp(g.treesEquivalent, 1200, 1)
 
   return (
-    <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-3">
-      <div className="rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20 lg:rounded-2xl lg:p-3.5">
-        <Leaf className="h-4 w-4 text-primary lg:h-[18px] lg:w-[18px]" />
-        <p className="mt-1.5 font-mono-data text-2xl font-bold text-primary lg:text-[1.65rem]">{co2}</p>
-        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">kg CO₂ saved</p>
+    <section className="space-y-3 lg:space-y-3.5" aria-labelledby="impact-stats-heading">
+      <h2 id="impact-stats-heading" className="font-heading text-sm font-bold text-charcoal lg:text-base">
+        Your impact in four numbers
+      </h2>
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-3">
+        <div className="flex flex-col rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20 lg:min-h-[132px] lg:rounded-2xl lg:p-3.5">
+          <Leaf className="h-4 w-4 text-primary lg:h-[18px] lg:w-[18px]" />
+          <p className="mt-1.5 font-mono-data text-2xl font-bold text-primary lg:text-[1.65rem]">{co2}</p>
+          <p className="text-[11px] font-semibold text-charcoal/60 lg:text-xs">kg CO₂ saved</p>
+          <p className="mt-auto pt-1.5 text-[10px] leading-snug text-charcoal/45 lg:text-[11px]">
+            Climate pollution you likely skipped by pedaling instead of riding in traffic.
+          </p>
+        </div>
+        <div className="flex flex-col rounded-xl bg-teal/10 p-3 ring-1 ring-teal/20 lg:min-h-[132px] lg:rounded-2xl lg:p-3.5">
+          <Route className="h-4 w-4 text-teal lg:h-[18px] lg:w-[18px]" />
+          <p className="mt-1.5 font-mono-data text-2xl font-bold text-teal lg:text-[1.65rem]">{km}</p>
+          <p className="text-[11px] font-semibold text-charcoal/60 lg:text-xs">km biked</p>
+          <p className="mt-auto pt-1.5 text-[10px] leading-snug text-charcoal/45 lg:text-[11px]">
+            Total distance you covered on the bike this month.
+          </p>
+        </div>
+        <div className="flex flex-col rounded-xl bg-accent/15 p-3 ring-1 ring-accent/25 lg:min-h-[132px] lg:rounded-2xl lg:p-3.5">
+          <Sparkles className="h-4 w-4 text-accent lg:h-[18px] lg:w-[18px]" />
+          <p className="mt-1.5 font-mono-data text-2xl font-bold text-charcoal lg:text-[1.65rem]">{rides}</p>
+          <p className="text-[11px] font-semibold text-charcoal/60 lg:text-xs">total rides</p>
+          <p className="mt-auto pt-1.5 text-[10px] leading-snug text-charcoal/45 lg:text-[11px]">
+            How many trips you logged — each one counts toward the totals.
+          </p>
+        </div>
+        <div className="flex flex-col rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20 lg:min-h-[132px] lg:rounded-2xl lg:p-3.5">
+          <Trees className="h-4 w-4 text-primary lg:h-[18px] lg:w-[18px]" />
+          <p className="mt-1.5 font-mono-data text-2xl font-bold text-primary lg:text-[1.65rem]">≈ {trees}</p>
+          <p className="text-[11px] font-semibold text-charcoal/60 lg:text-xs">trees equivalent</p>
+          <p className="mt-auto pt-1.5 text-[10px] leading-snug text-charcoal/45 lg:text-[11px]">
+            Imaginary young trees — helps picture the same benefit in nature terms.
+          </p>
+        </div>
       </div>
-      <div className="rounded-xl bg-teal/10 p-3 ring-1 ring-teal/20 lg:rounded-2xl lg:p-3.5">
-        <Route className="h-4 w-4 text-teal lg:h-[18px] lg:w-[18px]" />
-        <p className="mt-1.5 font-mono-data text-2xl font-bold text-teal lg:text-[1.65rem]">{km}</p>
-        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">km biked</p>
-      </div>
-      <div className="rounded-xl bg-accent/15 p-3 ring-1 ring-accent/25 lg:rounded-2xl lg:p-3.5">
-        <Sparkles className="h-4 w-4 text-accent lg:h-[18px] lg:w-[18px]" />
-        <p className="mt-1.5 font-mono-data text-2xl font-bold text-charcoal lg:text-[1.65rem]">{rides}</p>
-        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">total rides</p>
-      </div>
-      <div className="rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20 lg:rounded-2xl lg:p-3.5">
-        <Trees className="h-4 w-4 text-primary lg:h-[18px] lg:w-[18px]" />
-        <p className="mt-1.5 font-mono-data text-2xl font-bold text-primary lg:text-[1.65rem]">≈ {trees}</p>
-        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">trees equivalent</p>
-      </div>
-    </div>
+    </section>
   )
 }

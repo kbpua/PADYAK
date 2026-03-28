@@ -201,28 +201,30 @@ export function BikeDetailPage() {
   )
 
   const bookBar = (
-    <div className="fixed bottom-0 left-0 right-0 z-30 min-w-0 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-3 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:static lg:bottom-auto lg:z-0 lg:w-full lg:max-w-full lg:rounded-2xl lg:border lg:px-4 lg:py-5 lg:shadow-lg lg:shadow-charcoal/5 xl:px-6 pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
-      <div className="mx-auto flex w-full min-w-0 max-w-lg flex-col gap-3 sm:max-w-none lg:flex-row lg:items-center lg:justify-between lg:gap-4">
-        <div className="shrink-0 leading-none">
-          <p className="text-xs text-charcoal/50 lg:text-sm">From</p>
-          <p className="font-mono-data text-lg font-bold text-primary lg:text-2xl">₱{bike.pricePerHour}/hr</p>
+    <div className="fixed bottom-0 left-0 right-0 z-30 min-w-0 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-2.5 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg max-lg:pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] sm:pt-3 lg:static lg:bottom-auto lg:z-0 lg:w-full lg:max-w-full lg:rounded-2xl lg:border lg:p-5 lg:shadow-lg lg:shadow-charcoal/5 xl:p-6">
+      <div className="mx-auto flex w-full min-w-0 max-w-lg flex-col gap-2 sm:max-w-none lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-x-4">
+        <div className="shrink-0 leading-none lg:justify-self-start">
+          <p className="text-[11px] text-charcoal/50 sm:text-xs lg:text-sm">From</p>
+          <p className="font-mono-data text-base font-bold text-primary sm:text-lg lg:text-2xl">₱{bike.pricePerHour}/hr</p>
         </div>
-        <div className="flex min-w-0 w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-end lg:min-w-0 lg:flex-1 lg:flex-wrap">
+        <div className="flex min-w-0 w-full flex-row items-stretch justify-center gap-2 lg:w-auto lg:max-w-full lg:justify-center">
           <button
             type="button"
             onClick={messageOwner}
-            className="inline-flex min-h-12 min-w-0 w-full flex-[1_1_8rem] items-center justify-center gap-2 rounded-full border-2 border-charcoal/15 bg-white px-3 py-2.5 text-center font-heading text-sm font-bold leading-snug text-charcoal transition active:scale-[0.98] sm:w-auto sm:flex-1 sm:px-4 lg:max-w-full lg:flex-[1_1_0] lg:text-sm"
+            aria-label="Message owner"
+            className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-charcoal/15 bg-white px-2.5 py-2 text-center font-heading text-xs font-bold leading-tight text-charcoal transition active:scale-[0.98] sm:min-h-12 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm lg:min-w-[11rem] lg:flex-none lg:px-6"
           >
-            <MessageCircle className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
-            <span className="min-w-0">Message Owner</span>
+            <MessageCircle className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" strokeWidth={2} />
+            <span className="min-w-0 text-center leading-tight">Message Owner</span>
           </button>
           <button
             type="button"
             onClick={book}
-            className="inline-flex min-h-12 min-w-0 w-full flex-[1_1_8rem] items-center justify-center gap-2 rounded-full border-2 border-transparent bg-primary px-3 py-2.5 text-center font-heading text-sm font-bold leading-snug text-white shadow-lg shadow-primary/25 transition active:scale-[0.98] sm:w-auto sm:flex-1 sm:px-4 lg:max-w-full lg:flex-[1_1_0] lg:text-sm"
+            aria-label="Book this ride"
+            className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-transparent bg-primary px-2.5 py-2 text-center font-heading text-xs font-bold leading-tight text-white shadow-md shadow-primary/20 transition active:scale-[0.98] sm:min-h-12 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-lg sm:shadow-primary/25 lg:min-w-[11rem] lg:flex-none lg:px-6"
           >
-            <span className="min-w-0">Book This Bike</span>
-            <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={2} />
+            <span className="min-w-0 text-center leading-tight">Book This Ride</span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" strokeWidth={2} />
           </button>
         </div>
       </div>
@@ -230,7 +232,7 @@ export function BikeDetailPage() {
   )
 
   return (
-    <div className="pb-[calc(15rem+env(safe-area-inset-bottom,0px))] lg:mx-auto lg:max-w-7xl lg:pb-10 lg:px-4 xl:max-w-[1400px] xl:px-10 2xl:px-14">
+    <div className="pb-[calc(12rem+env(safe-area-inset-bottom,0px))] lg:mx-auto lg:max-w-7xl lg:pb-10 lg:px-4 xl:max-w-[1400px] xl:px-10 2xl:px-14">
       <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-10 xl:gap-12 2xl:gap-14">
         <div className="min-w-0 lg:col-span-5 xl:col-span-5">
           <div className="lg:sticky lg:top-6 lg:space-y-6">

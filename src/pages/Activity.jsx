@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Bike, ChevronRight } from 'lucide-react'
 import { mockActivity } from '../data/user'
 import { useApp } from '../context/AppContext'
@@ -15,7 +16,9 @@ const demoBooking = {
 
 export function Activity() {
   const navigate = useNavigate()
-  const { startRide } = useApp()
+  const { startRide, rideHistory } = useApp()
+
+  const rides = useMemo(() => [...rideHistory, ...mockActivity], [rideHistory])
 
   const goDemoRide = () => {
     startRide(demoBooking)
@@ -27,7 +30,7 @@ export function Activity() {
       <h1 className="font-heading text-xl font-extrabold text-charcoal lg:text-3xl">My rides</h1>
       <p className="mt-1 text-sm text-charcoal/55">Receipts and trip history</p>
       <div className="mt-6 space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
-        {mockActivity.map((a) => (
+        {rides.map((a) => (
           <div
             key={a.id}
             className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5 transition hover:shadow-lg"

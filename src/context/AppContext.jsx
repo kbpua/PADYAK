@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import { bikes as seedBikes } from '../data/bikes'
@@ -29,6 +30,7 @@ const STORAGE_KEYS = {
   bookings: 'padyak_bookings',
   listedBikes: 'padyak_listed_bikes',
   bikeReviews: 'padyak_bike_reviews',
+  rideHistory: 'padyak_ride_history',
 }
 
 const LEGACY_STORAGE_KEYS = {
@@ -77,6 +79,25 @@ function initialKalsada() {
   return saved?.length ? saved : kalsadaSeedReports
 }
 
+function initialRideHistory() {
+  return loadJson(STORAGE_KEYS.rideHistory, [])
+}
+
+/** Snapshot when a live ride ends — matches Activity / mockActivity row shape */
+function tripHistoryEntryFromActiveRide(activeRide) {
+  const booking = activeRide?.booking
+  if (!booking?.bike?.name) return null
+  const ended = new Date()
+  return {
+    id: `trip-${booking.id}-${ended.getTime()}`,
+    bikeName: booking.bike.name,
+    date: ended.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    time: ended.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    distance: '3.2 km',
+    status: 'completed',
+  }
+}
+
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -95,12 +116,26 @@ export function AppProvider({ children }) {
   const [bookingDraft, setBookingDraft] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState('gcash')
   const [activeRide, setActiveRide] = useState(null)
+  const activeRideRef = useRef(null)
+  const [rideHistory, setRideHistory] = useState(initialRideHistory)
   const [lastBooking, setLastBookingState] = useState(null)
   const [listedBikes, setListedBikes] = useState(initialListedBikes)
   const [bikeReviews, setBikeReviews] = useState(initialBikeReviews)
   const [remoteSynced, setRemoteSynced] = useState(false)
 
   const setLastBooking = useCallback((b) => setLastBookingState(b), [])
+
+  useEffect(() => {
+    activeRideRef.current = activeRide
+  }, [activeRide])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.rideHistory, JSON.stringify(rideHistory))
+    } catch {
+      /* ignore */
+    }
+  }, [rideHistory])
 
   useEffect(() => {
     if (!sbOn || session?.user) return
@@ -323,7 +358,14 @@ export function AppProvider({ children }) {
     })
   }, [])
 
-  const endRide = useCallback(() => setActiveRide(null), [])
+  const endRide = useCallback(() => {
+    const current = activeRideRef.current
+    const entry = tripHistoryEntryFromActiveRide(current)
+    if (entry) {
+      setRideHistory((prev) => [entry, ...prev])
+    }
+    setActiveRide(null)
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -343,6 +385,7 @@ export function AppProvider({ children }) {
       activeRide,
       startRide,
       endRide,
+      rideHistory,
       lastBooking,
       setLastBooking,
       listedBikes,
@@ -369,6 +412,7 @@ export function AppProvider({ children }) {
       activeRide,
       startRide,
       endRide,
+      rideHistory,
       lastBooking,
       setLastBooking,
       listedBikes,

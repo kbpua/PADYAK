@@ -24,22 +24,28 @@ export function Dashboard() {
   const { user } = useApp()
   const displayName = user.firstName?.trim() || user.name?.split(/\s+/)[0] || 'there'
   const { weekRides, weekCo2, weekKm } = weeklyFromMonth(user.stats)
+  const now = new Date()
+  const periodLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const monthName = now.toLocaleDateString('en-US', { month: 'long' })
 
   const greeting =
     weekRides > 0 ? (
       <>
-        Hi, <span className="font-semibold text-charcoal">{displayName}</span>! In the past week you have saved
-        about <span className="font-semibold text-primary">{weekCo2} kg</span> of CO₂ across{' '}
+        Hi, <span className="font-semibold text-charcoal">{displayName}</span>! This past week you took{' '}
         <span className="font-semibold text-charcoal">
-          {weekRides} ride{weekRides === 1 ? '' : 's'}
+          {weekRides} bike ride{weekRides === 1 ? '' : 's'}
         </span>{' '}
-        — roughly <span className="font-semibold text-charcoal">{weekKm} km</span> on the bike. The tiles below
-        show your full March picture.
+        (~<span className="font-semibold text-charcoal">{weekKm} km</span>). Choosing the bike instead of a car or
+        jeepney for those trips means about{' '}
+        <span className="font-semibold text-primary">{weekCo2} kg less climate pollution</span> than if those trips
+        had used a motor. The cards below add up your impact for{' '}
+        <span className="font-semibold text-charcoal/80">{monthName}</span> overall.
       </>
     ) : (
       <>
-        Hi, <span className="font-semibold text-charcoal">{displayName}</span>! You have not logged a ride in the
-        past week yet — your next trip will show up here. Everything below is your impact for this month so far.
+        Hi, <span className="font-semibold text-charcoal">{displayName}</span>! No rides logged in the last week yet
+        — when you do, a short recap will show up here. The numbers below are still your totals for{' '}
+        <span className="font-semibold text-charcoal/80">{monthName}</span> so far.
       </>
     )
 
@@ -61,7 +67,12 @@ export function Dashboard() {
         <h1 className="font-heading text-xl font-extrabold text-charcoal lg:text-2xl">
           Your Eco Dashboard 🌍
         </h1>
-        <p className="mt-0.5 text-xs text-charcoal/50 lg:text-xs">March 2026</p>
+        <p className="mt-0.5 text-xs text-charcoal/50 lg:text-xs">{periodLabel}</p>
+        <p className="mt-3 w-full max-w-none text-pretty text-sm leading-relaxed text-charcoal/70 lg:text-[15px]">
+          This page turns your rides into easy ideas: how far you pedaled, how much dirty air and climate pollution you
+          likely avoided by not using a car or jeepney, and how your neighborhood compares with others. The figures are
+          estimates for encouragement — not a medical or lab test.
+        </p>
       </div>
       <ImpactStats />
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">

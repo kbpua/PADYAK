@@ -13,7 +13,12 @@ export function FullLeaderboard() {
   return (
     <div className="rounded-2xl bg-white p-3 shadow-md ring-1 ring-charcoal/5 lg:p-4">
       <h2 className="font-heading text-sm font-bold text-charcoal">Barangay leaderboard</h2>
-      <div className="mt-2 divide-y divide-charcoal/5 lg:mt-3">
+      <p className="mt-2 text-xs leading-relaxed text-charcoal/55 lg:text-[13px]">
+        Neighbor areas ranked by how much their riders saved together (kg CO₂) and how many people are active. Higher
+        CO₂ saved means more trips likely replaced cars or jeepneys. Arrows show whether a place is trending up or
+        down vs last period (demo).
+      </p>
+      <div className="mt-3 divide-y divide-charcoal/5 lg:mt-3">
         {barangays.map((b) => {
           const mine = b.name === user.barangay
           return (

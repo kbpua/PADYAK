@@ -1,17 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bike, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Bike, CheckCircle2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useMessages } from '../context/MessagesContext'
 import { MapPlaceholder } from '../components/common/MapPlaceholder'
-
-const payments = [
-  { id: 'gcash', label: 'GCash', sub: 'Pay in-app' },
-  { id: 'card', label: 'Debit / Credit', sub: 'Visa, Mastercard' },
-  { id: 'wallet', label: 'Padyak Wallet', sub: 'Balance: ₱240' },
-  { id: 'cash', label: 'Cash on pickup', sub: 'Pay the owner' },
-]
+import { paymentMethodOptions } from '../data/paymentMethods'
 
 export function BookingConfirm() {
   const navigate = useNavigate()
@@ -46,11 +40,11 @@ export function BookingConfirm() {
     }
     setLastBooking(booking)
     setConfirmedBooking(booking)
+    startRide(booking)
     setSuccess(true)
   }
 
   const goToRide = () => {
-    if (confirmedBooking) startRide(confirmedBooking)
     navigate('/ride/active')
   }
 
@@ -63,10 +57,26 @@ export function BookingConfirm() {
     navigate(`/messages/${chatId}`)
   }
 
+  const goBack = () => {
+    navigate(-1)
+  }
+
   return (
     <div className="min-h-svh bg-surface px-4 pb-10 pt-6 lg:mx-auto lg:max-w-3xl lg:px-0 lg:pb-16 lg:pt-8 xl:max-w-4xl">
-      <h1 className="font-heading text-xl font-extrabold text-charcoal lg:text-3xl">Confirm booking</h1>
-      <p className="mt-1 text-sm text-charcoal/55">Review details before you pay</p>
+      <div className="flex items-start gap-2">
+        <button
+          type="button"
+          onClick={goBack}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-charcoal transition hover:bg-charcoal/10 active:scale-95 lg:h-11 lg:w-11"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="h-5 w-5" strokeWidth={2} />
+        </button>
+        <div className="min-w-0 flex-1 pt-0.5">
+          <h1 className="font-heading text-xl font-extrabold text-charcoal lg:text-3xl">Confirm booking</h1>
+          <p className="mt-1 text-sm text-charcoal/55">Review details before you pay</p>
+        </div>
+      </div>
 
       <div className="mt-6 space-y-4 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-charcoal/5">
         <div className="flex gap-3">
@@ -110,7 +120,7 @@ export function BookingConfirm() {
       <div className="mt-6">
         <p className="text-xs font-bold uppercase tracking-wide text-charcoal/45">Payment</p>
         <div className="mt-2 space-y-2">
-          {payments.map((p) => (
+          {paymentMethodOptions.map((p) => (
             <button
               key={p.id}
               type="button"
