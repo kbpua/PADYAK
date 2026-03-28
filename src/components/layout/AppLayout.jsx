@@ -27,7 +27,7 @@ export function AppLayout({ children }) {
           className={`flex min-h-0 flex-1 flex-col ${
             fullBleedMain
               ? 'overflow-hidden lg:p-0'
-              : 'overflow-y-auto lg:bg-surface lg:rounded-tl-3xl lg:shadow-[inset_1px_0_0_rgba(15,23,42,0.06)] lg:px-8 lg:py-6 xl:px-12 xl:py-8'
+              : 'overflow-y-auto lg:bg-surface lg:rounded-tl-3xl lg:shadow-[inset_1px_0_0_rgba(15,23,42,0.06)] lg:px-5 lg:py-4 xl:px-8 xl:py-5'
           }`}
         >
           <div
@@ -36,7 +36,7 @@ export function AppLayout({ children }) {
                 ? 'flex min-h-0 w-full flex-1 flex-col overflow-hidden lg:h-full lg:flex-1'
                 : immersive
                   ? 'min-h-svh lg:min-h-full'
-                  : 'min-h-full lg:mx-auto lg:max-w-[1440px]'
+                  : 'min-h-full w-full lg:mx-auto lg:max-w-[min(1600px,100%)]'
             }
           >
             <div

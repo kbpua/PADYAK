@@ -131,7 +131,7 @@ export function Explore() {
       <DraggableSheet
         ref={sheetShellRef}
         maxDrag={sheetMaxDrag}
-        className="fixed inset-x-0 bottom-0 z-30 flex max-h-[min(78dvh,calc(100dvh-5rem))] min-h-0 flex-col overflow-hidden rounded-t-3xl bg-white pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_40px_rgba(0,0,0,0.2)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex max-h-[min(78dvh,calc(100dvh-5rem))] min-h-0 flex-col overflow-hidden rounded-t-3xl bg-white pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_40px_rgba(0,0,0,0.2)] lg:hidden"
       >
         <div className="shrink-0 border-b border-charcoal/5 px-5 pb-3">
           <div className="flex items-center justify-between">

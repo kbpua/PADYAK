@@ -91,8 +91,24 @@ export function AppProvider({ children }) {
     localStorage.setItem(STORAGE_KEYS.kalsada, JSON.stringify(kalsadaReports))
   }, [kalsadaReports])
 
+  /** Base64 photo data URLs exceed localStorage quota easily — persist without crashing. */
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.listedBikes, JSON.stringify(listedBikes))
+    const trySave = (payload) => {
+      try {
+        localStorage.setItem(STORAGE_KEYS.listedBikes, JSON.stringify(payload))
+        return true
+      } catch {
+        return false
+      }
+    }
+    if (trySave(listedBikes)) return
+    const withoutPhotos = listedBikes.map((b) => ({ ...b, photos: [] }))
+    if (trySave(withoutPhotos)) return
+    try {
+      localStorage.removeItem(STORAGE_KEYS.listedBikes)
+    } catch {
+      /* ignore */
+    }
   }, [listedBikes])
 
   const completeOnboarding = useCallback(() => setOnboardingDone(true), [])

@@ -88,7 +88,6 @@ function validateStep(step, form) {
       if (!form.pickupAddress.trim() || form.pickupAddress.trim().length < 3) {
         return 'Enter a pickup location or use current location.'
       }
-      if (form.lat == null || form.lng == null) return 'Pin the location (use current location or confirm address).'
       return null
     default:
       return null
@@ -177,16 +176,6 @@ export function ListBike() {
     })
   }
 
-  const confirmAddressOnMap = () => {
-    if (!form.pickupAddress.trim()) {
-      setError('Type an address or landmark first.')
-      return
-    }
-    const loc = mockGeocode(form.pickupAddress, user.barangay)
-    update({ lat: loc.lat, lng: loc.lng })
-    setError(null)
-  }
-
   const next = () => {
     const err = validateStep(step, form)
     if (err) {
@@ -196,11 +185,21 @@ export function ListBike() {
     setError(null)
     if (step < steps.length - 1) setStep((s) => s + 1)
     else {
-      const id = `listed-${Date.now()}`
-      const bike = buildListing(form, user, listedBikes.length, id)
-      addListedBike(bike)
-      setCreatedId(id)
-      setDone(true)
+      try {
+        let publishForm = form
+        if (publishForm.lat == null || publishForm.lng == null) {
+          const loc = mockGeocode(publishForm.pickupAddress, user.barangay)
+          publishForm = { ...publishForm, lat: loc.lat, lng: loc.lng }
+        }
+        const id = `listed-${Date.now()}`
+        const bike = buildListing(publishForm, user, listedBikes.length, id)
+        addListedBike(bike)
+        setCreatedId(id)
+        setDone(true)
+      } catch (e) {
+        console.error(e)
+        setError('Something went wrong publishing. Please try again.')
+      }
     }
   }
 
@@ -254,10 +253,10 @@ export function ListBike() {
       : 'AI suggestion: try ₱20–35/hr near UP Campus for city bikes.'
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-4 lg:max-w-[1400px] lg:px-10 lg:pb-10 lg:pt-8 xl:px-14">
-      <div className="lg:rounded-3xl lg:bg-white lg:p-8 lg:shadow-md lg:ring-1 lg:ring-charcoal/5 xl:p-10">
-        <div className="mb-6 flex items-center justify-between lg:mb-8">
-          <h1 className="font-heading text-lg font-extrabold text-charcoal lg:text-3xl">List your bike</h1>
+    <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-4 lg:max-w-[min(1200px,100%)] lg:px-6 lg:pb-10 lg:pt-5 xl:px-8">
+      <div className="lg:rounded-2xl lg:bg-white lg:p-6 lg:shadow-md lg:ring-1 lg:ring-charcoal/5 xl:p-7">
+        <div className="mb-6 flex items-center justify-between lg:mb-5">
+          <h1 className="font-heading text-lg font-extrabold text-charcoal lg:text-2xl">List your bike</h1>
           <span className="rounded-full bg-charcoal/10 px-3 py-1 text-xs font-bold text-charcoal/55 lg:text-sm">
             {step + 1}/{steps.length}
           </span>
@@ -268,7 +267,7 @@ export function ListBike() {
             style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
-        <div className="mb-6 flex flex-wrap justify-between gap-x-2 gap-y-2 text-[10px] font-bold uppercase tracking-wide text-charcoal/40 lg:mb-8 lg:justify-start lg:gap-6 lg:text-xs">
+        <div className="mb-6 flex flex-wrap justify-between gap-x-2 gap-y-2 text-[10px] font-bold uppercase tracking-wide text-charcoal/40 lg:mb-5 lg:justify-start lg:gap-5 lg:text-xs">
           {steps.map((s, i) => (
             <span key={s} className={i === step ? 'text-primary' : ''}>
               {s}
@@ -288,12 +287,14 @@ export function ListBike() {
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -16 }}
-            className="min-h-[320px] space-y-4 lg:min-h-[360px] lg:space-y-5 xl:min-h-[400px]"
+            className="min-h-[320px] space-y-4 lg:min-h-[300px] lg:space-y-4 xl:min-h-[320px]"
           >
           {step === 0 && (
             <>
               <p className="text-sm text-charcoal/60 lg:text-base">
-                Add up to 5 clear photos (frame, tires, drivetrain).
+                Add up to 5 clear photos (frame, tires, drivetrain).{' '}
+                <span className="font-bold text-red-600">*</span>
+                <span className="sr-only"> Required: at least one photo.</span>
               </p>
               <input
                 ref={fileRef}
@@ -336,7 +337,9 @@ export function ListBike() {
             <>
               <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
                 <div className="lg:col-span-2">
-                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">Bike name</label>
+                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
+                    Bike name <span className="text-red-600">*</span>
+                  </label>
                   <input
                     value={form.name}
                     onChange={(e) => update({ name: e.target.value })}
@@ -403,13 +406,19 @@ export function ListBike() {
                   </select>
                 </div>
               </div>
-              <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">Description</label>
+              <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
+                Description <span className="text-red-600">*</span>
+              </label>
+              <p className="mt-1 text-xs text-charcoal/50 lg:text-sm">
+                Minimum <span className="font-semibold text-charcoal/65">12 characters</span> — include condition,
+                accessories, lock policy, or pickup tips.
+              </p>
               <textarea
                 value={form.desc}
                 onChange={(e) => update({ desc: e.target.value })}
                 rows={4}
                 placeholder="Condition, accessories, lock policy, pickup tips…"
-                className="w-full rounded-xl border border-charcoal/15 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 lg:min-h-[140px] lg:text-base"
+                className="mt-1 w-full rounded-xl border border-charcoal/15 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 lg:min-h-[140px] lg:text-base"
               />
             </>
           )}
@@ -418,7 +427,9 @@ export function ListBike() {
             <>
               <div className="grid gap-4 lg:grid-cols-2 lg:gap-8">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">Hourly (₱)</label>
+                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
+                    Hourly (₱) <span className="text-red-600">*</span>
+                  </label>
                   <div className="mt-1 flex rounded-xl border border-charcoal/15 focus-within:ring-2 focus-within:ring-primary/20">
                     <span className="flex items-center px-4 font-mono-data font-bold text-charcoal/50 lg:text-lg">₱</span>
                     <input
@@ -433,7 +444,9 @@ export function ListBike() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">Daily (₱)</label>
+                  <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
+                    Daily (₱) <span className="text-red-600">*</span>
+                  </label>
                   <div className="mt-1 flex rounded-xl border border-charcoal/15 focus-within:ring-2 focus-within:ring-primary/20">
                     <span className="flex items-center px-4 font-mono-data font-bold text-charcoal/50 lg:text-lg">₱</span>
                     <input
@@ -464,7 +477,11 @@ export function ListBike() {
 
           {step === 3 && (
             <>
-              <p className="text-sm text-charcoal/60">Choose days you&apos;re usually available for pickup.</p>
+              <p className="text-sm text-charcoal/60">
+                Choose days you&apos;re usually available for pickup.{' '}
+                <span className="font-bold text-red-600">*</span>
+                <span className="sr-only"> At least one day required.</span>
+              </p>
               <div className="grid grid-cols-7 gap-2 lg:max-w-3xl lg:gap-3">
                 {DAY_KEYS.map((d) => (
                   <button
@@ -499,45 +516,33 @@ export function ListBike() {
           {step === 4 && (
             <>
               <label className="block text-xs font-bold uppercase text-charcoal/45 lg:text-sm">
-                Pickup address or landmark
+                Pickup address or landmark <span className="text-red-600">*</span>
               </label>
               <input
                 value={form.pickupAddress}
                 onChange={(e) => update({ pickupAddress: e.target.value })}
                 placeholder="e.g. Near Vinzons Hall, UP Diliman"
-                className="w-full rounded-xl border border-charcoal/15 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 lg:max-w-3xl lg:py-3.5 lg:text-base"
+                className="mt-1 w-full rounded-xl border border-charcoal/15 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 lg:max-w-3xl lg:py-3.5 lg:text-base"
               />
-              <div className="grid gap-3 sm:grid-cols-2 lg:max-w-3xl lg:gap-5">
-                <button
-                  type="button"
-                  onClick={useCurrentLocation}
-                  className="flex min-h-[52px] items-center justify-center gap-3 rounded-2xl bg-charcoal px-5 py-4 font-heading text-sm font-bold text-white shadow-md transition hover:bg-charcoal/90 active:scale-[0.99] lg:min-h-[60px] lg:text-base"
-                >
-                  <MapPin className="h-5 w-5 shrink-0" strokeWidth={2} />
-                  <span className="text-balance">Use my area (demo GPS)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={confirmAddressOnMap}
-                  className="flex min-h-[52px] items-center justify-center gap-3 rounded-2xl border-2 border-primary/50 bg-primary/5 px-5 py-4 font-heading text-sm font-bold text-primary shadow-sm transition hover:bg-primary/10 active:scale-[0.99] lg:min-h-[60px] lg:text-base"
-                >
-                  <MapPin className="h-5 w-5 shrink-0" strokeWidth={2} />
-                  <span className="text-balance">Pin from address</span>
-                </button>
-              </div>
-              {form.lat != null && form.lng != null && (
-                <p className="flex items-center gap-3 rounded-xl bg-surface px-4 py-3 text-xs font-medium text-charcoal/70 ring-1 ring-charcoal/10 lg:max-w-3xl lg:py-4 lg:text-sm">
-                  <MapPin className="h-5 w-5 shrink-0 text-primary" />
-                  Location saved for the map ({form.lat.toFixed(4)}, {form.lng.toFixed(4)})
-                </p>
-              )}
+              <p className="mt-2 text-xs text-charcoal/50 lg:text-sm">
+                Map position is set automatically from your address when you publish, or use the button below for a
+                quick demo location.
+              </p>
+              <button
+                type="button"
+                onClick={useCurrentLocation}
+                className="flex w-full min-h-[52px] max-w-3xl items-center justify-center gap-3 rounded-2xl bg-charcoal px-5 py-4 font-heading text-sm font-bold text-white shadow-md transition hover:bg-charcoal/90 active:scale-[0.99] lg:min-h-[60px] lg:text-base"
+              >
+                <MapPin className="h-5 w-5 shrink-0" strokeWidth={2} />
+                <span className="text-balance">Use my area (demo GPS)</span>
+              </button>
             </>
           )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-50 flex gap-3 border-t border-charcoal/10 bg-white/95 px-4 py-3 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:static lg:z-0 lg:mx-auto lg:mt-8 lg:flex lg:max-w-[1400px] lg:items-center lg:justify-between lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-white lg:px-6 lg:py-5 lg:shadow-md xl:px-8">
+      <div className="fixed bottom-[calc(5.375rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-50 flex gap-3 border-t border-charcoal/10 bg-white/95 px-4 py-2.5 shadow-[0_-1px_0_rgba(15,23,42,0.06)] backdrop-blur-lg lg:static lg:z-0 lg:mx-auto lg:mt-8 lg:flex lg:max-w-[1400px] lg:items-center lg:justify-between lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-white lg:px-6 lg:py-5 lg:shadow-md xl:px-8">
         <button
           type="button"
           onClick={back}
@@ -549,7 +554,7 @@ export function ListBike() {
         <button
           type="button"
           onClick={next}
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-heading text-sm font-bold text-white shadow-lg shadow-primary/25 active:scale-[0.98] lg:max-w-sm lg:flex-none lg:px-10 lg:py-4 lg:text-base"
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-heading text-sm font-bold text-white shadow-lg shadow-primary/25 active:scale-[0.98] lg:max-w-sm lg:flex-none lg:px-8 lg:py-3 lg:text-sm"
         >
           {step === steps.length - 1 ? 'Publish listing' : 'Continue'}
           <ChevronRight className="h-5 w-5" />

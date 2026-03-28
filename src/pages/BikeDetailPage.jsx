@@ -198,7 +198,7 @@ export function BikeDetailPage() {
   )
 
   const bookBar = (
-    <div className="fixed bottom-0 left-0 right-0 z-30 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-3 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:static lg:bottom-auto lg:z-0 lg:w-full lg:rounded-2xl lg:border lg:px-6 lg:py-5 lg:shadow-lg lg:shadow-charcoal/5 xl:px-8 pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+    <div className="fixed bottom-0 left-0 right-0 z-30 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-3 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:static lg:bottom-auto lg:z-0 lg:w-full lg:rounded-2xl lg:border lg:px-6 lg:py-5 lg:shadow-lg lg:shadow-charcoal/5 xl:px-8 pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
       <div className="mx-auto grid w-full max-w-lg grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-6 lg:gap-8">
         <div className="flex flex-col justify-center gap-0.5 leading-none">
           <p className="text-xs text-charcoal/50 lg:text-sm">From</p>

@@ -21,48 +21,48 @@ export function EcoImpactCard() {
 
   return (
     <section className="w-full px-4 lg:px-0">
-      <div className="rounded-2xl bg-charcoal p-5 shadow-lg ring-1 ring-white/10">
+      <div className="rounded-2xl bg-charcoal p-4 shadow-lg ring-1 ring-white/10 lg:p-4">
         {/* ── Header ── */}
-        <h2 className="font-heading text-lg font-bold text-white">Your Green Impact 🌱</h2>
+        <h2 className="font-heading text-base font-bold text-white lg:text-base">Your Green Impact 🌱</h2>
 
         {/* ── Stats grid: 3 cols × 2 rows, all tiles equal height ── */}
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="mt-3 grid grid-cols-3 gap-1.5 lg:gap-2">
           {/* Row 1 */}
-          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/10">
-            <Leaf className="mb-1.5 h-5 w-5 text-primary" />
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-2.5 text-center ring-1 ring-white/10 lg:py-2">
+            <Leaf className="mb-1 h-4 w-4 text-primary lg:h-4 lg:w-4" />
             <p className="font-mono-data text-sm font-bold leading-none text-primary">{s.totalCO2Saved} kg</p>
             <p className="mt-1 text-[10px] font-medium text-white/70">CO₂ saved</p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/10">
-            <Route className="mb-1.5 h-5 w-5 text-teal" />
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-2.5 text-center ring-1 ring-white/10 lg:py-2">
+            <Route className="mb-1 h-4 w-4 text-teal" />
             <p className="font-mono-data text-sm font-bold leading-none text-teal">{s.totalDistance} km</p>
             <p className="mt-1 text-[10px] font-medium text-white/70">Biked</p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/10">
-            <Sparkles className="mb-1.5 h-5 w-5 text-accent" />
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-2.5 text-center ring-1 ring-white/10 lg:py-2">
+            <Sparkles className="mb-1 h-4 w-4 text-accent" />
             <p className="font-mono-data text-sm font-bold leading-none text-accent">{s.ridesThisWeek}</p>
             <p className="mt-1 text-[10px] font-medium text-white/70">Rides this week</p>
           </div>
           {/* Row 2 */}
-          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/10">
-            <Bike className="mb-1.5 h-5 w-5 text-sky-400" />
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-2.5 text-center ring-1 ring-white/10 lg:py-2">
+            <Bike className="mb-1 h-4 w-4 text-sky-400" />
             <p className="font-mono-data text-sm font-bold leading-none text-sky-400">{s.totalRides}</p>
             <p className="mt-1 text-[10px] font-medium text-white/70">Total rides</p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/10">
-            <Flame className="mb-1.5 h-5 w-5 text-orange-400" />
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-2.5 text-center ring-1 ring-white/10 lg:py-2">
+            <Flame className="mb-1 h-4 w-4 text-orange-400" />
             <p className="font-mono-data text-sm font-bold leading-none text-orange-400">{avgKm} km</p>
             <p className="mt-1 text-[10px] font-medium text-white/70">Avg per ride</p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-3 text-center ring-1 ring-white/10">
-            <TrendingUp className="mb-1.5 h-5 w-5 text-primary" />
+          <div className="flex flex-col items-center justify-center rounded-xl bg-white/10 px-2 py-2.5 text-center ring-1 ring-white/10 lg:py-2">
+            <TrendingUp className="mb-1 h-4 w-4 text-primary" />
             <p className="font-mono-data text-sm font-bold leading-none text-primary">{s.totalCO2Saved} kg</p>
             <p className="mt-1 text-[10px] font-medium text-white/70">CO₂ this month</p>
           </div>
         </div>
 
         {/* ── Monthly goal progress ── */}
-        <div className="mt-5 rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+        <div className="mt-4 rounded-xl bg-white/5 p-3 ring-1 ring-white/10 lg:mt-4 lg:p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-accent" />
@@ -86,7 +86,7 @@ export function EcoImpactCard() {
         </div>
 
         {/* ── Eco equivalencies ── */}
-        <div className="mt-5 space-y-2.5">
+        <div className="mt-4 space-y-2 lg:mt-4">
           <h3 className="text-[11px] font-bold uppercase tracking-wider text-white/40">
             What your rides offset
           </h3>

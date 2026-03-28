@@ -18,15 +18,15 @@ export function BikeCard({ bike }) {
       className="group flex w-[200px] shrink-0 flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-charcoal/10 transition hover:shadow-md active:scale-[0.99] sm:w-[220px] md:w-[240px] lg:w-full lg:max-w-none lg:rounded-2xl"
     >
       <div
-        className="relative flex h-[104px] items-center justify-center sm:h-[112px] lg:h-[120px] xl:h-[128px]"
+        className="relative flex h-[104px] items-center justify-center sm:h-[112px] lg:h-[100px] xl:h-[108px]"
         style={{ backgroundColor: bike.color }}
       >
-        <Bike className="h-11 w-11 text-white drop-shadow-sm sm:h-12 sm:w-12 lg:h-[52px] lg:w-[52px]" strokeWidth={1.5} />
+        <Bike className="h-11 w-11 text-white drop-shadow-sm sm:h-12 sm:w-12 lg:h-10 lg:w-10" strokeWidth={1.5} />
         <span className="absolute bottom-2 left-2 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-charcoal shadow-sm ring-1 ring-black/5">
           {bike.type}
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-2.5 lg:gap-2 lg:p-3">
+      <div className="flex flex-1 flex-col gap-1.5 p-2.5 lg:gap-1.5 lg:p-2.5">
         <div>
           <h3 className="font-heading text-[13px] font-bold leading-snug text-charcoal lg:text-sm">{bike.name}</h3>
           <div className="mt-1 flex items-center gap-2">

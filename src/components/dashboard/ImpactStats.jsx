@@ -28,26 +28,26 @@ export function ImpactStats() {
   const trees = useCountUp(g.treesEquivalent, 1200, 1)
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <div className="rounded-2xl bg-primary/10 p-4 ring-1 ring-primary/20">
-        <Leaf className="h-5 w-5 text-primary" />
-        <p className="mt-2 font-mono-data text-3xl font-bold text-primary">{co2}</p>
-        <p className="text-xs font-semibold text-charcoal/55">kg CO₂ saved</p>
+    <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-3">
+      <div className="rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20 lg:rounded-2xl lg:p-3.5">
+        <Leaf className="h-4 w-4 text-primary lg:h-[18px] lg:w-[18px]" />
+        <p className="mt-1.5 font-mono-data text-2xl font-bold text-primary lg:text-[1.65rem]">{co2}</p>
+        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">kg CO₂ saved</p>
       </div>
-      <div className="rounded-2xl bg-teal/10 p-4 ring-1 ring-teal/20">
-        <Route className="h-5 w-5 text-teal" />
-        <p className="mt-2 font-mono-data text-3xl font-bold text-teal">{km}</p>
-        <p className="text-xs font-semibold text-charcoal/55">km biked</p>
+      <div className="rounded-xl bg-teal/10 p-3 ring-1 ring-teal/20 lg:rounded-2xl lg:p-3.5">
+        <Route className="h-4 w-4 text-teal lg:h-[18px] lg:w-[18px]" />
+        <p className="mt-1.5 font-mono-data text-2xl font-bold text-teal lg:text-[1.65rem]">{km}</p>
+        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">km biked</p>
       </div>
-      <div className="rounded-2xl bg-accent/15 p-4 ring-1 ring-accent/25">
-        <Sparkles className="h-5 w-5 text-accent" />
-        <p className="mt-2 font-mono-data text-3xl font-bold text-charcoal">{rides}</p>
-        <p className="text-xs font-semibold text-charcoal/55">total rides</p>
+      <div className="rounded-xl bg-accent/15 p-3 ring-1 ring-accent/25 lg:rounded-2xl lg:p-3.5">
+        <Sparkles className="h-4 w-4 text-accent lg:h-[18px] lg:w-[18px]" />
+        <p className="mt-1.5 font-mono-data text-2xl font-bold text-charcoal lg:text-[1.65rem]">{rides}</p>
+        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">total rides</p>
       </div>
-      <div className="rounded-2xl bg-primary/10 p-4 ring-1 ring-primary/20">
-        <Trees className="h-5 w-5 text-primary" />
-        <p className="mt-2 font-mono-data text-3xl font-bold text-primary">≈ {trees}</p>
-        <p className="text-xs font-semibold text-charcoal/55">trees equivalent</p>
+      <div className="rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20 lg:rounded-2xl lg:p-3.5">
+        <Trees className="h-4 w-4 text-primary lg:h-[18px] lg:w-[18px]" />
+        <p className="mt-1.5 font-mono-data text-2xl font-bold text-primary lg:text-[1.65rem]">≈ {trees}</p>
+        <p className="text-[11px] font-semibold text-charcoal/55 lg:text-xs">trees equivalent</p>
       </div>
     </div>
   )

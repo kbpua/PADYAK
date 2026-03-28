@@ -11,15 +11,15 @@ function TrendIcon({ trend }) {
 export function FullLeaderboard() {
   const { user } = useApp()
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5">
+    <div className="rounded-2xl bg-white p-3 shadow-md ring-1 ring-charcoal/5 lg:p-4">
       <h2 className="font-heading text-sm font-bold text-charcoal">Barangay leaderboard</h2>
-      <div className="mt-3 divide-y divide-charcoal/5">
+      <div className="mt-2 divide-y divide-charcoal/5 lg:mt-3">
         {barangays.map((b) => {
           const mine = b.name === user.barangay
           return (
             <div
               key={b.name}
-              className={`flex items-center gap-3 py-3 ${mine ? 'rounded-xl bg-primary/10 px-2 -mx-2' : ''}`}
+              className={`flex items-center gap-2.5 py-2.5 lg:py-2 ${mine ? 'rounded-xl bg-primary/10 px-2 -mx-2' : ''}`}
             >
               <span className="w-6 text-center font-mono-data text-sm font-bold text-charcoal/50">
                 {b.rank}

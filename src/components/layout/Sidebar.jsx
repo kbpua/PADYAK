@@ -13,22 +13,22 @@ import { AppLogo } from '../common/AppLogo'
 import { useMessages } from '../../context/MessagesContext'
 
 const item =
-  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition hover:bg-white/10 active:scale-[0.99]'
+  'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold transition hover:bg-white/10 active:scale-[0.99]'
 
 export function Sidebar() {
   const { totalUnread } = useMessages()
 
   return (
     <aside
-      className="sticky top-0 z-30 flex max-lg:hidden h-svh w-56 shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-charcoal py-5 text-white xl:w-64"
+      className="sticky top-0 z-30 flex max-lg:hidden h-svh w-52 shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-charcoal py-4 text-white xl:w-56"
       aria-label="Main navigation"
     >
-      <div className="mb-6 flex items-center gap-3 px-4 xl:px-5">
+      <div className="mb-5 flex items-center gap-2.5 px-3 xl:px-4">
         <span className="grid h-10 w-10 shrink-0 place-items-stretch overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/15 xl:h-11 xl:w-11">
           <AppLogo zoom={1.28} className="min-h-0 min-w-0" />
         </span>
         <div className="min-w-0">
-          <p className="font-heading text-base font-bold leading-tight tracking-tight xl:text-lg">Padyak</p>
+          <p className="font-heading text-sm font-bold leading-tight tracking-tight xl:text-base">Padyak</p>
           <p className="truncate text-[10px] text-white/50 xl:text-[11px]">Pedal Your City Forward</p>
         </div>
       </div>

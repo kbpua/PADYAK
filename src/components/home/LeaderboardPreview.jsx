@@ -10,7 +10,7 @@ export function LeaderboardPreview() {
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-heading text-sm font-bold text-charcoal">Top Green Barangays 🏆</h2>
       </div>
-      <div className="space-y-2 rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5">
+      <div className="space-y-2 rounded-2xl bg-white p-3 shadow-md ring-1 ring-charcoal/5 lg:p-3">
         {top.map((b, i) => (
           <div
             key={b.name}
