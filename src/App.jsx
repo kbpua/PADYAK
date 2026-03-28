@@ -7,6 +7,7 @@ import { Explore } from './pages/Explore'
 import { BikeDetailPage } from './pages/BikeDetailPage'
 import { BookingConfirm } from './pages/BookingConfirm'
 import { ActiveRidePage } from './pages/ActiveRidePage'
+import { PostRideReviewPage } from './pages/PostRideReviewPage'
 import { Dashboard } from './pages/Dashboard'
 import { ListBike } from './pages/ListBike'
 import { Profile } from './pages/Profile'
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/bike/:id" element={<BikeDetailPage />} />
         <Route path="/booking/confirm" element={<BookingConfirm />} />
         <Route path="/ride/active" element={<ActiveRidePage />} />
+        <Route path="/ride/review" element={<PostRideReviewPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/list-bike" element={<ListBike />} />
         <Route path="/profile" element={<Profile />} />

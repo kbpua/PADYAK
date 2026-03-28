@@ -34,5 +34,9 @@ export const reviews = [
 ]
 
 export function getReviewsForBike(bikeId) {
-  return reviews.filter((r) => r.bikeId === Number(bikeId))
+  return reviews.filter((r) => String(r.bikeId) === String(bikeId))
+}
+
+export function getSeedReviewsForBike(bikeId) {
+  return reviews.filter((r) => String(r.bikeId) === String(bikeId))
 }

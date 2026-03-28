@@ -5,12 +5,12 @@ import { useApp } from '../context/AppContext'
 
 const demoBooking = {
   id: 'demo-ride',
-  bike: { name: 'City Cruiser Lite', color: '#14B8A6' },
+  bike: { id: 2, name: 'City Cruiser Lite', color: '#14B8A6' },
   dateLabel: 'Sat, Mar 28, 2026',
   duration: '1 hour',
   pickup: 'Brgy. UP Campus',
   total: 25,
-  slot: 'Sat-10a',
+  slot: 'Sat 10:00 AM',
 }
 
 export function Activity() {

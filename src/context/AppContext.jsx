@@ -9,6 +9,7 @@ import {
 import { bikes as seedBikes } from '../data/bikes'
 import { mockUser } from '../data/user'
 import { kalsadaSeedReports } from '../data/kalsadaSeed'
+import { getSeedReviewsForBike } from '../data/reviews'
 
 const STORAGE_KEYS = {
   onboarding: 'padyak_onboarding_done',
@@ -16,6 +17,7 @@ const STORAGE_KEYS = {
   kalsada: 'padyak_kalsada_reports',
   bookings: 'padyak_bookings',
   listedBikes: 'padyak_listed_bikes',
+  bikeReviews: 'padyak_bike_reviews',
 }
 
 /** One-time read from pre-rename keys */
@@ -65,6 +67,7 @@ export function AppProvider({ children }) {
   const [activeRide, setActiveRide] = useState(null)
   const [lastBooking, setLastBookingState] = useState(null)
   const [listedBikes, setListedBikes] = useState(() => loadJson(STORAGE_KEYS.listedBikes, []))
+  const [bikeReviews, setBikeReviews] = useState(() => loadJson(STORAGE_KEYS.bikeReviews, []))
 
   const setLastBooking = useCallback((b) => setLastBookingState(b), [])
 
@@ -78,6 +81,43 @@ export function AppProvider({ children }) {
   const addListedBike = useCallback((bike) => {
     setListedBikes((prev) => [...prev, bike])
   }, [])
+
+  const addBikeReview = useCallback((payload) => {
+    const id = `ur${Date.now()}`
+    setBikeReviews((prev) => [
+      {
+        id,
+        bikeId: String(payload.bikeId),
+        author: payload.author || mockUser.name,
+        date: new Date().toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }),
+        rating: payload.rating,
+        text: payload.text.trim(),
+      },
+      ...prev,
+    ])
+  }, [])
+
+  const getReviewsForBikeMerged = useCallback(
+    (bikeId) => {
+      const id = String(bikeId)
+      const userRows = bikeReviews.filter((r) => String(r.bikeId) === id)
+      const seed = getSeedReviewsForBike(id)
+      return [...userRows, ...seed]
+    },
+    [bikeReviews],
+  )
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.bikeReviews, JSON.stringify(bikeReviews))
+    } catch {
+      /* ignore quota */
+    }
+  }, [bikeReviews])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(onboardingDone))
@@ -164,6 +204,9 @@ export function AppProvider({ children }) {
       allBikes,
       getBikeById,
       addListedBike,
+      bikeReviews,
+      addBikeReview,
+      getReviewsForBikeMerged,
     }),
     [
       onboardingDone,
@@ -183,6 +226,9 @@ export function AppProvider({ children }) {
       allBikes,
       getBikeById,
       addListedBike,
+      bikeReviews,
+      addBikeReview,
+      getReviewsForBikeMerged,
     ],
   )
 

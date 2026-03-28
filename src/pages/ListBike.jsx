@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom'
 import { Camera, ChevronRight, MapPin, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../context/AppContext'
+import { DAY_KEYS } from '../lib/bikeAvailability'
 
 const steps = ['Photos', 'Details', 'Pricing', 'Availability', 'Location']
 
 const LISTING_COLORS = ['#22C55E', '#14B8A6', '#3B82F6', '#F59E0B', '#A855F7', '#EC4899']
-
-const DAY_KEYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 const TIME_WINDOWS = [
   { id: '7-9a', label: '7–9 AM' },
@@ -128,6 +127,10 @@ function buildListing(form, user, colorIndex, listingId) {
     listingMeta: {
       availabilitySummary: summary,
       pickupNote: form.pickupAddress.trim(),
+    },
+    availability: {
+      days: activeDays,
+      timeWindowId: form.timeWindow,
     },
   }
 }

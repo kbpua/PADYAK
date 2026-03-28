@@ -1,11 +1,27 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { LeafletMap } from '../components/common/LeafletMap'
 import { useApp } from '../context/AppContext'
 import { DraggableSheet } from '../components/common/DraggableSheet'
 
 const filters = ['All', 'Mountain', 'City', 'Road', 'Folding']
+
+function bikeMatchesQuery(bike, q) {
+  const s = q.trim().toLowerCase()
+  if (!s) return true
+  const hay = [
+    bike.name,
+    bike.type,
+    bike.gears,
+    bike.location?.barangay,
+    bike.location?.city,
+    bike.owner?.name,
+  ]
+    .filter(Boolean)
+    .map((x) => String(x).toLowerCase())
+  return hay.some((chunk) => chunk.includes(s))
+}
 
 function ExploreBikeList({ list, className = '' }) {
   return (
@@ -40,7 +56,17 @@ function ExploreBikeList({ list, className = '' }) {
   )
 }
 
-function ExploreToolbar({ filter, setFilter, onClose }) {
+function ExploreToolbar({
+  filter,
+  setFilter,
+  onClose,
+  searchOpen,
+  onSearchToggle,
+  searchQuery,
+  onSearchChange,
+  onClearSearch,
+  searchInputRef,
+}) {
   const chipBtn =
     'flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-charcoal shadow-md ring-1 ring-charcoal/10 backdrop-blur-md transition hover:bg-white lg:h-11 lg:w-11'
   return (
@@ -48,7 +74,13 @@ function ExploreToolbar({ filter, setFilter, onClose }) {
       <header className="relative z-10 flex items-center justify-between px-4 pt-4 text-charcoal drop-shadow-sm lg:px-6 lg:pt-6">
         <h1 className="font-heading text-lg font-bold lg:text-2xl">Explore map</h1>
         <div className="flex items-center gap-2">
-          <button type="button" className={chipBtn} aria-label="Search">
+          <button
+            type="button"
+            onClick={onSearchToggle}
+            className={`${chipBtn} ${searchOpen ? 'ring-2 ring-primary/40' : ''}`}
+            aria-label={searchOpen ? 'Close search' : 'Search bikes'}
+            aria-expanded={searchOpen}
+          >
             <Search className="h-5 w-5" strokeWidth={2} />
           </button>
           <button type="button" onClick={onClose} className={chipBtn} aria-label="Back to home">
@@ -56,7 +88,7 @@ function ExploreToolbar({ filter, setFilter, onClose }) {
           </button>
         </div>
       </header>
-      <div className="relative z-10 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:mt-4 lg:px-6 lg:pb-4 [&::-webkit-scrollbar]:hidden">
+      <div className="relative z-10 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:mt-4 lg:px-6 lg:pb-2 [&::-webkit-scrollbar]:hidden">
         {filters.map((f) => (
           <button
             key={f}
@@ -72,6 +104,41 @@ function ExploreToolbar({ filter, setFilter, onClose }) {
           </button>
         ))}
       </div>
+      {searchOpen && (
+        <div className="relative z-10 px-4 pb-3 lg:px-6 lg:pb-4">
+          <div className="flex items-center gap-2 rounded-2xl bg-white/95 px-3 py-2.5 shadow-md ring-1 ring-charcoal/10 backdrop-blur-md">
+            <Search className="h-4 w-4 shrink-0 text-charcoal/40" strokeWidth={2} />
+            <input
+              ref={searchInputRef}
+              type="text"
+              inputMode="search"
+              autoComplete="off"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault()
+                  onClearSearch()
+                  onSearchToggle()
+                }
+              }}
+              placeholder="Search name, area, type…"
+              className="min-w-0 flex-1 bg-transparent text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none"
+              enterKeyHint="search"
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={onClearSearch}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-charcoal/50 transition hover:bg-charcoal/5 hover:text-charcoal"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" strokeWidth={2} />
+              </button>
+            ) : null}
+          </div>
+        </div>
+      )}
     </>
   )
 }
@@ -81,9 +148,34 @@ const SHEET_PEEK_PX = 176
 
 export function Explore() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const qFromUrl = searchParams.get('q')?.trim() ?? ''
   const { allBikes } = useApp()
   const [filter, setFilter] = useState('All')
-  const list = filter === 'All' ? allBikes : allBikes.filter((b) => b.type === filter)
+  const [searchQuery, setSearchQuery] = useState(qFromUrl)
+  const [searchOpen, setSearchOpen] = useState(Boolean(qFromUrl))
+  const searchInputRef = useRef(null)
+
+  useEffect(() => {
+    setSearchQuery(qFromUrl)
+    if (qFromUrl) setSearchOpen(true)
+  }, [qFromUrl])
+
+  useEffect(() => {
+    if (searchOpen) {
+      const t = window.setTimeout(() => searchInputRef.current?.focus(), 50)
+      return () => window.clearTimeout(t)
+    }
+  }, [searchOpen])
+
+  const byType = filter === 'All' ? allBikes : allBikes.filter((b) => b.type === filter)
+  const list = byType.filter((b) => bikeMatchesQuery(b, searchQuery))
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setSearchParams({}, { replace: true })
+  }
+
   const sheetShellRef = useRef(null)
   const [sheetMaxDrag, setSheetMaxDrag] = useState(360)
 
@@ -114,6 +206,17 @@ export function Explore() {
           filter={filter}
           setFilter={setFilter}
           onClose={() => navigate('/home')}
+          searchOpen={searchOpen}
+          onSearchToggle={() => setSearchOpen((o) => !o)}
+          searchQuery={searchQuery}
+          onSearchChange={(v) => {
+            setSearchQuery(v)
+            const t = v.trim()
+            if (t) setSearchParams({ q: t }, { replace: true })
+            else setSearchParams({}, { replace: true })
+          }}
+          onClearSearch={clearSearch}
+          searchInputRef={searchInputRef}
         />
       </div>
 

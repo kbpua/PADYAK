@@ -1,24 +1,27 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BadgeCheck, Bike, Heart, MessageCircle } from 'lucide-react'
-import { getReviewsForBike } from '../data/reviews'
 import { GreenRouteCard } from '../components/bike/GreenRouteCard'
 import { AvailabilityCalendar } from '../components/bike/AvailabilityCalendar'
 import { RatingStars } from '../components/common/RatingStars'
 import { PillBadge } from '../components/common/PillBadge'
 import { useApp } from '../context/AppContext'
 import { useMessages } from '../context/MessagesContext'
+import { defaultBookableSlotId, formatSlotLabel } from '../lib/bikeAvailability'
 
 export function BikeDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { setBookingDraft, getBikeById } = useApp()
+  const { setBookingDraft, getBikeById, getReviewsForBikeMerged } = useApp()
   const { ensureChatForBike } = useMessages()
   const bike = getBikeById(id)
   const [fav, setFav] = useState(false)
   const [slot, setSlot] = useState(null)
 
-  const reviews = useMemo(() => (bike ? getReviewsForBike(bike.id) : []), [bike])
+  const reviews = useMemo(
+    () => (bike ? getReviewsForBikeMerged(bike.id) : []),
+    [bike, getReviewsForBikeMerged],
+  )
   const avg =
     reviews.length > 0
       ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
@@ -36,9 +39,10 @@ export function BikeDetailPage() {
   }
 
   const book = () => {
+    const slotId = slot ?? defaultBookableSlotId(bike)
     setBookingDraft({
       bike,
-      slot: slot || 'Wed-10a',
+      slot: formatSlotLabel(slotId),
       dateLabel: 'Wed, Apr 1, 2026',
       duration: '2 hours',
       pickup: `${bike.location.barangay}, ${bike.location.city}`,
@@ -49,10 +53,9 @@ export function BikeDetailPage() {
   }
 
   const messageOwner = () => {
-    const datePart = slot ? 'Selected slot' : 'TBD'
     const chatId = ensureChatForBike(bike, {
-      date: datePart,
-      time: slot || 'TBD',
+      date: slot ? formatSlotLabel(slot) : 'TBD',
+      time: slot ? 'Pickup slot selected — confirm with owner' : 'No slot selected yet',
       status: 'pending',
     })
     navigate(`/messages/${chatId}`)
@@ -164,7 +167,7 @@ export function BikeDetailPage() {
         <GreenRouteCard />
       </div>
 
-      <AvailabilityCalendar selected={slot} onSelect={setSlot} />
+      <AvailabilityCalendar bike={bike} selected={slot} onSelect={setSlot} />
 
       <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5 lg:p-6">
         <div className="flex items-center justify-between">
@@ -198,27 +201,27 @@ export function BikeDetailPage() {
   )
 
   const bookBar = (
-    <div className="fixed bottom-0 left-0 right-0 z-30 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-3 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:static lg:bottom-auto lg:z-0 lg:w-full lg:rounded-2xl lg:border lg:px-6 lg:py-5 lg:shadow-lg lg:shadow-charcoal/5 xl:px-8 pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
-      <div className="mx-auto grid w-full max-w-lg grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-6 lg:gap-8">
-        <div className="flex flex-col justify-center gap-0.5 leading-none">
+    <div className="fixed bottom-0 left-0 right-0 z-30 min-w-0 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-3 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:static lg:bottom-auto lg:z-0 lg:w-full lg:max-w-full lg:rounded-2xl lg:border lg:px-4 lg:py-5 lg:shadow-lg lg:shadow-charcoal/5 xl:px-6 pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+      <div className="mx-auto flex w-full min-w-0 max-w-lg flex-col gap-3 sm:max-w-none lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+        <div className="shrink-0 leading-none">
           <p className="text-xs text-charcoal/50 lg:text-sm">From</p>
           <p className="font-mono-data text-lg font-bold text-primary lg:text-2xl">₱{bike.pricePerHour}/hr</p>
         </div>
-        <div className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-end sm:gap-3 lg:gap-4">
+        <div className="flex min-w-0 w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-end lg:min-w-0 lg:flex-1 lg:flex-wrap">
           <button
             type="button"
             onClick={messageOwner}
-            className="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-charcoal/15 bg-white px-5 font-heading text-sm font-bold text-charcoal transition active:scale-[0.98] sm:w-auto sm:min-w-[168px] lg:min-w-[176px] lg:px-6 lg:text-sm xl:min-w-[184px] xl:text-base"
+            className="inline-flex min-h-12 min-w-0 w-full flex-[1_1_8rem] items-center justify-center gap-2 rounded-full border-2 border-charcoal/15 bg-white px-3 py-2.5 text-center font-heading text-sm font-bold leading-snug text-charcoal transition active:scale-[0.98] sm:w-auto sm:flex-1 sm:px-4 lg:max-w-full lg:flex-[1_1_0] lg:text-sm"
           >
             <MessageCircle className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
-            Message Owner
+            <span className="min-w-0">Message Owner</span>
           </button>
           <button
             type="button"
             onClick={book}
-            className="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-transparent bg-primary px-6 font-heading text-sm font-bold text-white shadow-lg shadow-primary/25 transition active:scale-[0.98] sm:w-auto sm:min-w-[188px] lg:min-w-[204px] lg:px-8 lg:text-sm xl:min-w-[212px] xl:text-base"
+            className="inline-flex min-h-12 min-w-0 w-full flex-[1_1_8rem] items-center justify-center gap-2 rounded-full border-2 border-transparent bg-primary px-3 py-2.5 text-center font-heading text-sm font-bold leading-snug text-white shadow-lg shadow-primary/25 transition active:scale-[0.98] sm:w-auto sm:flex-1 sm:px-4 lg:max-w-full lg:flex-[1_1_0] lg:text-sm"
           >
-            Book This Bike
+            <span className="min-w-0">Book This Bike</span>
             <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={2} />
           </button>
         </div>
@@ -229,7 +232,7 @@ export function BikeDetailPage() {
   return (
     <div className="pb-[calc(15rem+env(safe-area-inset-bottom,0px))] lg:mx-auto lg:max-w-7xl lg:pb-10 lg:px-4 xl:max-w-[1400px] xl:px-10 2xl:px-14">
       <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-10 xl:gap-12 2xl:gap-14">
-        <div className="lg:col-span-5 xl:col-span-5">
+        <div className="min-w-0 lg:col-span-5 xl:col-span-5">
           <div className="lg:sticky lg:top-6 lg:space-y-6">
             {hero}
             <div className="hidden lg:block">
@@ -238,9 +241,9 @@ export function BikeDetailPage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:col-span-7 xl:col-span-7">
+        <div className="flex min-w-0 flex-col lg:col-span-7 xl:col-span-7">
           <div className="space-y-5 px-4 pt-5 lg:px-0 lg:pt-2">{detailBlocks}</div>
-          <div className="mt-6 px-4 pb-4 lg:mt-8 lg:px-0 lg:pb-0">{bookBar}</div>
+          <div className="mt-6 min-w-0 px-4 pb-4 lg:mt-8 lg:px-0 lg:pb-0">{bookBar}</div>
         </div>
       </div>
     </div>

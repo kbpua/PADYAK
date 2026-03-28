@@ -64,7 +64,15 @@ export function RidePanelBody({ className = '' }) {
       </Link>
       <button
         type="button"
-        onClick={endRide}
+        onClick={() => {
+          const b = activeRide?.booking
+          endRide()
+          if (b?.bike?.id !== undefined && b?.bike?.id !== null && b?.bike?.id !== '') {
+            navigate('/ride/review', { state: { booking: b } })
+          } else {
+            navigate('/home')
+          }
+        }}
         className="w-full rounded-full bg-red-500 py-3.5 font-heading text-sm font-bold text-white shadow-lg shadow-red-500/25 transition active:scale-[0.98] lg:py-4 lg:text-base"
       >
         End Ride
