@@ -53,7 +53,7 @@ export function ReportsList() {
               </div>
               <button
                 type="button"
-                onClick={() => upvoteReport(r.id)}
+                onClick={() => void upvoteReport(r.id)}
                 className="flex shrink-0 flex-col items-center gap-0.5 rounded-xl bg-surface px-2.5 py-1.5 text-charcoal/70 transition hover:bg-primary/10 active:scale-95"
                 aria-label={`Still there · ${r.upvotes} confirmations`}
               >

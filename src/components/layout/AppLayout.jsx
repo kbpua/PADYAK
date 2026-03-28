@@ -8,7 +8,8 @@ const immersivePaths = ['/explore', '/ride/active']
 export function AppLayout({ children }) {
   const { pathname } = useLocation()
   const isOnboarding = pathname === '/'
-  const hideBottomNav = isOnboarding || pathname === '/ride/active'
+  const hideSidebar = pathname === '/login'
+  const hideBottomNav = isOnboarding || pathname === '/ride/active' || pathname === '/login'
   const immersive = immersivePaths.includes(pathname)
   const messagesRoute = pathname.startsWith('/messages')
   const fullBleedMain = immersive || messagesRoute
@@ -21,7 +22,7 @@ export function AppLayout({ children }) {
           : 'flex min-h-svh flex-col bg-surface lg:flex-row lg:h-screen lg:bg-charcoal'
       }
     >
-      {!isOnboarding && <Sidebar />}
+      {!isOnboarding && !hideSidebar && <Sidebar />}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <main
           className={`flex min-h-0 flex-1 flex-col ${

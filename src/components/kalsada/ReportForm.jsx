@@ -33,21 +33,25 @@ export function ReportForm({ open, onClose }) {
 
   if (!open) return null
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     const loc = location.trim()
     if (!loc) {
       setLocError(true)
       return
     }
-    addKalsadaReport({
-      type: issueType,
-      location: loc,
-      severity,
-      description,
-    })
-    reset()
-    onClose()
+    try {
+      await addKalsadaReport({
+        type: issueType,
+        location: loc,
+        severity,
+        description,
+      })
+      reset()
+      onClose()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const handleClose = () => {

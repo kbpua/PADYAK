@@ -27,7 +27,7 @@ export function PostRideReviewPage() {
 
   const bike = getBikeById(booking.bike.id) ?? booking.bike
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     if (rating < 1) {
       setError('Choose a rating from 1 to 5 stars.')
@@ -37,9 +37,14 @@ export function PostRideReviewPage() {
       setError('Write at least a short note (10+ characters).')
       return
     }
-    addBikeReview({ bikeId: bike.id, rating, text, author: user.name })
-    setDone(true)
-    window.setTimeout(() => navigate(`/bike/${bike.id}`), 1400)
+    try {
+      await addBikeReview({ bikeId: bike.id, rating, text, author: user.name })
+      setDone(true)
+      window.setTimeout(() => navigate(`/bike/${bike.id}`), 1400)
+    } catch (err) {
+      console.error(err)
+      setError('Could not save your review. Check your connection and try again.')
+    }
   }
 
   const skip = () => {

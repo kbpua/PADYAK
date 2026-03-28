@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   Home,
   LayoutDashboard,
+  LogIn,
   MapPin,
   MessageCircle,
   Plus,
@@ -11,12 +12,14 @@ import {
 } from 'lucide-react'
 import { AppLogo } from '../common/AppLogo'
 import { useMessages } from '../../context/MessagesContext'
+import { useAuth } from '../../context/AuthContext'
 
 const item =
   'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold transition hover:bg-white/10 active:scale-[0.99]'
 
 export function Sidebar() {
   const { totalUnread } = useMessages()
+  const { isAuthenticated, isSupabaseConfigured } = useAuth()
 
   return (
     <aside
@@ -96,6 +99,15 @@ export function Sidebar() {
           <User className="h-5 w-5 shrink-0" strokeWidth={2} />
           Profile
         </NavLink>
+        {isSupabaseConfigured && !isAuthenticated ? (
+          <NavLink
+            to="/login"
+            className={({ isActive }) => `${item} ${isActive ? 'bg-white/10 text-primary' : 'text-white/85'}`}
+          >
+            <LogIn className="h-5 w-5 shrink-0" strokeWidth={2} />
+            Log in
+          </NavLink>
+        ) : null}
       </nav>
     </aside>
   )

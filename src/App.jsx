@@ -1,50 +1,38 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import { useApp } from './context/AppContext'
+import { Loader2 } from 'lucide-react'
+import { useAuth } from './context/AuthContext'
 import { AppLayout } from './components/layout/AppLayout'
-import { Onboarding } from './pages/Onboarding'
-import { Home } from './pages/Home'
-import { Explore } from './pages/Explore'
-import { BikeDetailPage } from './pages/BikeDetailPage'
-import { BookingConfirm } from './pages/BookingConfirm'
-import { ActiveRidePage } from './pages/ActiveRidePage'
-import { PostRideReviewPage } from './pages/PostRideReviewPage'
-import { Dashboard } from './pages/Dashboard'
-import { ListBike } from './pages/ListBike'
-import { Profile } from './pages/Profile'
-import { KalsadaReports } from './pages/KalsadaReports'
-import { Activity } from './pages/Activity'
-import { MessagesLayout } from './pages/MessagesLayout'
-import { MessagesEmptyPlaceholder } from './pages/MessagesEmptyPlaceholder'
-import { ChatPage } from './pages/ChatPage'
-
-function RootGate() {
-  const { onboardingDone } = useApp()
-  if (onboardingDone) return <Navigate to="/home" replace />
-  return <Onboarding />
-}
+import { AuthenticatedAppRoutes, PreAuthRoutes } from './AppMainRoutes'
 
 export default function App() {
+  const { authReady, isSupabaseConfigured, isAuthenticated } = useAuth()
+
+  if (!authReady) {
+    return (
+      <div className="flex min-h-svh items-center justify-center bg-surface">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" strokeWidth={2} />
+      </div>
+    )
+  }
+
+  if (!isSupabaseConfigured) {
+    return (
+      <AppLayout>
+        <AuthenticatedAppRoutes />
+      </AppLayout>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <AppLayout>
+        <PreAuthRoutes />
+      </AppLayout>
+    )
+  }
+
   return (
     <AppLayout>
-      <Routes>
-        <Route path="/" element={<RootGate />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/bike/:id" element={<BikeDetailPage />} />
-        <Route path="/booking/confirm" element={<BookingConfirm />} />
-        <Route path="/ride/active" element={<ActiveRidePage />} />
-        <Route path="/ride/review" element={<PostRideReviewPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/list-bike" element={<ListBike />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/kalsada" element={<KalsadaReports />} />
-        <Route path="/activity" element={<Activity />} />
-        <Route path="/messages" element={<MessagesLayout />}>
-          <Route index element={<MessagesEmptyPlaceholder />} />
-          <Route path=":chatId" element={<ChatPage />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/home" replace />} />
-      </Routes>
+      <AuthenticatedAppRoutes />
     </AppLayout>
   )
 }

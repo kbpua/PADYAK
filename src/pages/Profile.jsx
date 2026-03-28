@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   BadgeCheck,
   Bell,
@@ -6,14 +6,19 @@ import {
   CreditCard,
   HelpCircle,
   History,
+  LogIn,
   LogOut,
   MessageCircle,
   Shield,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useAuth } from '../context/AuthContext'
 
 export function Profile() {
+  const navigate = useNavigate()
   const { user, profileRole, setProfileRole, listedBikes } = useApp()
+  const { isAuthenticated, isSupabaseConfigured, signOut } = useAuth()
+  const initial = user.firstName?.[0] ?? user.name?.[0] ?? '?'
   const renter = profileRole === 'renter'
 
   const menuRows = [
@@ -36,18 +41,34 @@ export function Profile() {
       <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-10 xl:gap-14">
         {/* Identity + role + stats — desktop: left column card */}
         <div className="min-w-0 space-y-6 lg:col-span-5 xl:col-span-4 lg:space-y-8">
+          {isSupabaseConfigured && !isAuthenticated ? (
+            <Link
+              to="/login"
+              className="flex items-center justify-between gap-3 rounded-2xl bg-primary/10 px-4 py-3 ring-1 ring-primary/20 transition hover:bg-primary/15"
+            >
+              <div className="min-w-0 text-left">
+                <p className="font-heading text-sm font-bold text-charcoal">Sign in with Supabase</p>
+                <p className="text-xs text-charcoal/55">Sync your profile, bookings, and reviews.</p>
+              </div>
+              <LogIn className="h-5 w-5 shrink-0 text-primary" strokeWidth={2} />
+            </Link>
+          ) : null}
+
           <div className="min-w-0 rounded-3xl bg-white p-6 shadow-md ring-1 ring-charcoal/5 lg:p-8">
             <div className="flex flex-col items-center text-center">
               <h1 className="max-w-full truncate px-1 font-heading text-lg font-bold tracking-tight text-charcoal lg:text-xl">
                 {user.name}
               </h1>
+              {user.email ? (
+                <p className="mt-1 max-w-full truncate px-2 text-xs text-charcoal/50">{user.email}</p>
+              ) : null}
               <p className="mt-1.5 text-sm text-charcoal/60 lg:text-[15px]">
                 {user.barangay}, {user.city}
               </p>
               <p className="mt-0.5 text-xs text-charcoal/45">Member since {user.memberSince}</p>
               <div className="relative mt-5 shrink-0 lg:mt-6">
                 <span className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/15 text-3xl font-heading font-bold text-primary ring-4 ring-primary/25 lg:h-28 lg:w-28 lg:text-4xl">
-                  {user.firstName[0]}
+                  {initial}
                 </span>
                 <span className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg ring-2 ring-white">
                   <BadgeCheck className="h-5 w-5" />
@@ -167,13 +188,27 @@ export function Profile() {
                 </button>
               )
             })}
-            <button
-              type="button"
-              className="flex w-full items-center gap-3 px-4 py-4 text-left text-red-600 transition hover:bg-red-50 lg:gap-4 lg:px-6 lg:py-5"
-            >
-              <LogOut className="h-5 w-5 lg:h-6 lg:w-6" />
-              <span className="text-sm font-semibold lg:text-base">Log out</span>
-            </button>
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  await signOut()
+                  navigate('/home', { replace: true })
+                }}
+                className="flex w-full items-center gap-3 px-4 py-4 text-left text-red-600 transition hover:bg-red-50 lg:gap-4 lg:px-6 lg:py-5"
+              >
+                <LogOut className="h-5 w-5 lg:h-6 lg:w-6" />
+                <span className="text-sm font-semibold lg:text-base">Log out</span>
+              </button>
+            ) : isSupabaseConfigured ? (
+              <Link
+                to="/login"
+                className="flex w-full items-center gap-3 px-4 py-4 text-left text-primary transition hover:bg-primary/5 lg:gap-4 lg:px-6 lg:py-5"
+              >
+                <LogIn className="h-5 w-5 lg:h-6 lg:w-6" />
+                <span className="text-sm font-semibold lg:text-base">Sign in</span>
+              </Link>
+            ) : null}
           </div>
 
           <Link

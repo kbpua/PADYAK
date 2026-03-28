@@ -10,6 +10,17 @@ import { bikes as seedBikes } from '../data/bikes'
 import { mockUser } from '../data/user'
 import { kalsadaSeedReports } from '../data/kalsadaSeed'
 import { getSeedReviewsForBike } from '../data/reviews'
+import {
+  fetchBikeListings,
+  fetchBikeReviews,
+  fetchKalsadaReports,
+  incrementKalsadaUpvote,
+  insertBikeListing,
+  insertBikeReview,
+  insertKalsadaReport,
+} from '../lib/supabase/dataApi'
+import { isSupabaseConfigured, supabase } from '../lib/supabaseClient'
+import { useAuth } from './AuthContext'
 
 const STORAGE_KEYS = {
   onboarding: 'padyak_onboarding_done',
@@ -20,7 +31,6 @@ const STORAGE_KEYS = {
   bikeReviews: 'padyak_bike_reviews',
 }
 
-/** One-time read from pre-rename keys */
 const LEGACY_STORAGE_KEYS = {
   [STORAGE_KEYS.onboarding]: 'siklocity_onboarding_done',
   [STORAGE_KEYS.profileRole]: 'siklocity_profile_role',
@@ -51,25 +61,88 @@ function loadJson(key, fallback) {
   }
 }
 
+function initialListedBikes() {
+  if (isSupabaseConfigured()) return []
+  return loadJson(STORAGE_KEYS.listedBikes, [])
+}
+
+function initialBikeReviews() {
+  if (isSupabaseConfigured()) return []
+  return loadJson(STORAGE_KEYS.bikeReviews, [])
+}
+
+function initialKalsada() {
+  if (isSupabaseConfigured()) return kalsadaSeedReports
+  const saved = loadJson(STORAGE_KEYS.kalsada, null)
+  return saved?.length ? saved : kalsadaSeedReports
+}
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 export function AppProvider({ children }) {
+  const { viewer, session, isAuthenticated, isSupabaseConfigured: sbOn } = useAuth()
+  const user = viewer ?? mockUser
+  const remoteData = Boolean(sbOn && isAuthenticated && session?.user?.id)
+
   const [onboardingDone, setOnboardingDone] = useState(() =>
     loadJson(STORAGE_KEYS.onboarding, false),
   )
   const [profileRole, setProfileRole] = useState(() =>
     loadJson(STORAGE_KEYS.profileRole, 'renter'),
   )
-  const [kalsadaReports, setKalsadaReports] = useState(() => {
-    const saved = loadJson(STORAGE_KEYS.kalsada, null)
-    return saved?.length ? saved : kalsadaSeedReports
-  })
+  const [kalsadaReports, setKalsadaReports] = useState(initialKalsada)
   const [bookingDraft, setBookingDraft] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState('gcash')
   const [activeRide, setActiveRide] = useState(null)
   const [lastBooking, setLastBookingState] = useState(null)
-  const [listedBikes, setListedBikes] = useState(() => loadJson(STORAGE_KEYS.listedBikes, []))
-  const [bikeReviews, setBikeReviews] = useState(() => loadJson(STORAGE_KEYS.bikeReviews, []))
+  const [listedBikes, setListedBikes] = useState(initialListedBikes)
+  const [bikeReviews, setBikeReviews] = useState(initialBikeReviews)
+  const [remoteSynced, setRemoteSynced] = useState(false)
 
   const setLastBooking = useCallback((b) => setLastBookingState(b), [])
+
+  useEffect(() => {
+    if (!sbOn || session?.user) return
+    setListedBikes([])
+    setBikeReviews([])
+    setKalsadaReports(kalsadaSeedReports)
+    setRemoteSynced(false)
+  }, [sbOn, session?.user])
+
+  useEffect(() => {
+    if (!remoteData || !supabase) {
+      setRemoteSynced(false)
+      return
+    }
+
+    let cancelled = false
+    setRemoteSynced(false)
+
+    ;(async () => {
+      const [listRes, revRes, kalRes] = await Promise.all([
+        fetchBikeListings(),
+        fetchBikeReviews(),
+        fetchKalsadaReports(),
+      ])
+
+      if (cancelled) return
+
+      if (!listRes.error && listRes.data) setListedBikes(listRes.data)
+      if (!revRes.error && revRes.data) setBikeReviews(revRes.data)
+      if (!kalRes.error && kalRes.data?.length) {
+        setKalsadaReports(kalRes.data)
+      } else if (!kalRes.error) {
+        setKalsadaReports(kalsadaSeedReports)
+      }
+
+      setRemoteSynced(true)
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [remoteData, session?.user?.id])
 
   const allBikes = useMemo(() => [...seedBikes, ...listedBikes], [listedBikes])
 
@@ -78,28 +151,62 @@ export function AppProvider({ children }) {
     [allBikes],
   )
 
-  const addListedBike = useCallback((bike) => {
-    setListedBikes((prev) => [...prev, bike])
-  }, [])
+  const addListedBike = useCallback(
+    async (bike) => {
+      if (remoteData && session?.user?.id) {
+        const { data, error } = await insertBikeListing(bike, session.user.id)
+        if (error) throw error
+        if (data) {
+          setListedBikes((prev) => [data, ...prev])
+          return data
+        }
+      }
+      setListedBikes((prev) => [...prev, bike])
+      return bike
+    },
+    [remoteData, session?.user?.id],
+  )
 
-  const addBikeReview = useCallback((payload) => {
-    const id = `ur${Date.now()}`
-    setBikeReviews((prev) => [
-      {
+  const addBikeReview = useCallback(
+    async (payload) => {
+      const author = payload.author || user.name
+      const text = payload.text.trim()
+      const bikeId = String(payload.bikeId)
+      const rating = payload.rating
+
+      if (remoteData && session?.user?.id) {
+        const { data, error } = await insertBikeReview({
+          bikeId,
+          userId: session.user.id,
+          authorName: author,
+          rating,
+          text,
+        })
+        if (error) throw error
+        if (data) {
+          setBikeReviews((prev) => [data, ...prev])
+          return data
+        }
+      }
+
+      const id = `ur${Date.now()}`
+      const row = {
         id,
-        bikeId: String(payload.bikeId),
-        author: payload.author || mockUser.name,
+        bikeId,
+        author,
         date: new Date().toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
         }),
-        rating: payload.rating,
-        text: payload.text.trim(),
-      },
-      ...prev,
-    ])
-  }, [])
+        rating,
+        text,
+      }
+      setBikeReviews((prev) => [row, ...prev])
+      return row
+    },
+    [remoteData, session?.user?.id, user.name],
+  )
 
   const getReviewsForBikeMerged = useCallback(
     (bikeId) => {
@@ -112,12 +219,13 @@ export function AppProvider({ children }) {
   )
 
   useEffect(() => {
+    if (remoteData) return
     try {
       localStorage.setItem(STORAGE_KEYS.bikeReviews, JSON.stringify(bikeReviews))
     } catch {
-      /* ignore quota */
+      /* ignore */
     }
-  }, [bikeReviews])
+  }, [bikeReviews, remoteData])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(onboardingDone))
@@ -128,11 +236,12 @@ export function AppProvider({ children }) {
   }, [profileRole])
 
   useEffect(() => {
+    if (remoteData) return
     localStorage.setItem(STORAGE_KEYS.kalsada, JSON.stringify(kalsadaReports))
-  }, [kalsadaReports])
+  }, [kalsadaReports, remoteData])
 
-  /** Base64 photo data URLs exceed localStorage quota easily — persist without crashing. */
   useEffect(() => {
+    if (remoteData) return
     const trySave = (payload) => {
       try {
         localStorage.setItem(STORAGE_KEYS.listedBikes, JSON.stringify(payload))
@@ -149,28 +258,63 @@ export function AppProvider({ children }) {
     } catch {
       /* ignore */
     }
-  }, [listedBikes])
+  }, [listedBikes, remoteData])
 
   const completeOnboarding = useCallback(() => setOnboardingDone(true), [])
 
-  const addKalsadaReport = useCallback((report) => {
-    const id = `k${Date.now()}`
-    setKalsadaReports((prev) => [
-      {
-        ...report,
-        id,
-        timestamp: 'Just now',
-        upvotes: 0,
-      },
-      ...prev,
-    ])
+  const resetOnboarding = useCallback(() => {
+    setOnboardingDone(false)
+    try {
+      localStorage.setItem(STORAGE_KEYS.onboarding, JSON.stringify(false))
+    } catch {
+      /* ignore */
+    }
   }, [])
 
-  const upvoteReport = useCallback((id) => {
-    setKalsadaReports((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, upvotes: (r.upvotes || 0) + 1 } : r)),
-    )
-  }, [])
+  const addKalsadaReport = useCallback(
+    async (report) => {
+      if (remoteData && session?.user?.id) {
+        const { data, error } = await insertKalsadaReport(report, session.user.id)
+        if (error) throw error
+        if (data) {
+          setKalsadaReports((prev) => [data, ...prev])
+          return
+        }
+      }
+      const id = `k${Date.now()}`
+      setKalsadaReports((prev) => [
+        {
+          ...report,
+          id,
+          timestamp: 'Just now',
+          upvotes: 0,
+        },
+        ...prev,
+      ])
+    },
+    [remoteData, session?.user?.id],
+  )
+
+  const upvoteReport = useCallback(
+    async (id) => {
+      let previous = 0
+      setKalsadaReports((prev) => {
+        const t = prev.find((r) => r.id === id)
+        previous = t?.upvotes || 0
+        return prev.map((r) => (r.id === id ? { ...r, upvotes: previous + 1 } : r))
+      })
+
+      if (remoteData && supabase && UUID_RE.test(String(id))) {
+        const { error } = await incrementKalsadaUpvote(id, previous + 1)
+        if (error) {
+          setKalsadaReports((prev) =>
+            prev.map((r) => (r.id === id ? { ...r, upvotes: previous } : r)),
+          )
+        }
+      }
+    },
+    [remoteData],
+  )
 
   const startRide = useCallback((booking) => {
     setActiveRide({
@@ -183,9 +327,10 @@ export function AppProvider({ children }) {
 
   const value = useMemo(
     () => ({
-      user: mockUser,
+      user,
       onboardingDone,
       completeOnboarding,
+      resetOnboarding,
       profileRole,
       setProfileRole,
       kalsadaReports,
@@ -207,10 +352,14 @@ export function AppProvider({ children }) {
       bikeReviews,
       addBikeReview,
       getReviewsForBikeMerged,
+      remoteData,
+      remoteSynced,
     }),
     [
+      user,
       onboardingDone,
       completeOnboarding,
+      resetOnboarding,
       profileRole,
       kalsadaReports,
       addKalsadaReport,
@@ -229,6 +378,8 @@ export function AppProvider({ children }) {
       bikeReviews,
       addBikeReview,
       getReviewsForBikeMerged,
+      remoteData,
+      remoteSynced,
     ],
   )
 

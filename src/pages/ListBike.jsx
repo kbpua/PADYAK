@@ -188,21 +188,23 @@ export function ListBike() {
     setError(null)
     if (step < steps.length - 1) setStep((s) => s + 1)
     else {
-      try {
-        let publishForm = form
-        if (publishForm.lat == null || publishForm.lng == null) {
-          const loc = mockGeocode(publishForm.pickupAddress, user.barangay)
-          publishForm = { ...publishForm, lat: loc.lat, lng: loc.lng }
+      void (async () => {
+        try {
+          let publishForm = form
+          if (publishForm.lat == null || publishForm.lng == null) {
+            const loc = mockGeocode(publishForm.pickupAddress, user.barangay)
+            publishForm = { ...publishForm, lat: loc.lat, lng: loc.lng }
+          }
+          const tempId = `listed-${Date.now()}`
+          const bike = buildListing(publishForm, user, listedBikes.length, tempId)
+          const saved = await addListedBike(bike)
+          setCreatedId(String(saved?.id ?? tempId))
+          setDone(true)
+        } catch (e) {
+          console.error(e)
+          setError('Something went wrong publishing. Please try again.')
         }
-        const id = `listed-${Date.now()}`
-        const bike = buildListing(publishForm, user, listedBikes.length, id)
-        addListedBike(bike)
-        setCreatedId(id)
-        setDone(true)
-      } catch (e) {
-        console.error(e)
-        setError('Something went wrong publishing. Please try again.')
-      }
+      })()
     }
   }
 

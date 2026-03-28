@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Bike, Leaf, MapPin } from 'lucide-react'
 import { AppLogo } from '../components/common/AppLogo'
 import { useApp } from '../context/AppContext'
+import { useAuth } from '../context/AuthContext'
 
 const slides = [
   {
@@ -30,13 +31,14 @@ export function Onboarding() {
   const [i, setI] = useState(0)
   const navigate = useNavigate()
   const { completeOnboarding } = useApp()
+  const { isSupabaseConfigured } = useAuth()
   const slide = slides[i]
 
   const next = () => {
     if (i < slides.length - 1) setI((x) => x + 1)
     else {
       completeOnboarding()
-      navigate('/home')
+      navigate(isSupabaseConfigured ? '/login' : '/home')
     }
   }
 
