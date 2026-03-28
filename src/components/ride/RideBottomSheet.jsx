@@ -1,10 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Leaf, MessageCircle, TriangleAlert } from 'lucide-react'
+import { Leaf, MessageCircle, Siren, TriangleAlert } from 'lucide-react'
 import { DraggableSheet } from '../common/DraggableSheet'
 import { useApp } from '../../context/AppContext'
 import { useMessages } from '../../context/MessagesContext'
 
-export function RidePanelBody({ className = '' }) {
+export function RidePanelBody({ className = '', onSos }) {
   const navigate = useNavigate()
   const { endRide, activeRide } = useApp()
   const { ensureChatForBike } = useMessages()
@@ -62,6 +62,16 @@ export function RidePanelBody({ className = '' }) {
         <TriangleAlert className="h-4 w-4 text-accent" />
         Report Road Issue
       </Link>
+      {onSos && (
+        <button
+          type="button"
+          onClick={onSos}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-amber-600 bg-amber-500 py-3.5 font-heading text-sm font-extrabold uppercase tracking-wide text-white shadow-lg shadow-amber-600/35 transition hover:bg-amber-600 active:scale-[0.98] lg:py-4"
+        >
+          <Siren className="h-5 w-5 shrink-0" strokeWidth={2} aria-hidden />
+          SOS — Emergency help
+        </button>
+      )}
       <button
         type="button"
         onClick={() => {
@@ -81,11 +91,11 @@ export function RidePanelBody({ className = '' }) {
   )
 }
 
-export function RideBottomSheet() {
+export function RideBottomSheet({ onSos }) {
   return (
     <>
       <DraggableSheet className="absolute bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-white/95 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-12px_40px_rgba(0,0,0,0.12)] backdrop-blur-md lg:hidden">
-        <RidePanelBody />
+        <RidePanelBody onSos={onSos} />
       </DraggableSheet>
       <aside className="relative z-20 hidden h-screen w-[min(420px,34vw)] shrink-0 flex-col border-l border-white/10 bg-white shadow-[-12px_0_48px_rgba(0,0,0,0.2)] lg:flex">
         <div className="border-b border-charcoal/5 px-6 py-4">
@@ -93,7 +103,7 @@ export function RideBottomSheet() {
           <p className="text-sm text-charcoal/55">Eco stats update as you pedal</p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <RidePanelBody className="pb-10" />
+          <RidePanelBody className="pb-10" onSos={onSos} />
         </div>
       </aside>
     </>
