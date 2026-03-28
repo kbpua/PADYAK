@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #22c55e;
+  --color-charcoal: #1e293b;
+  --color-accent: #f59e0b;
+  --color-surface: #f8fafc;
+  --color-teal: #14b8a6;
+  --font-family-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-family-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-surface font-sans text-charcoal antialiased;
+  }
+
+  .leaflet-div-icon.bike-marker-icon {
+    cursor: pointer;
+    border: none !important;
+    background: transparent !important;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(120vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--color-primary);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.font-mono-data {
+  font-family: var(--font-family-mono);
+}
