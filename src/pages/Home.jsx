@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronRight, MapPin, Wind } from 'lucide-react'
+import { Bike, ChevronRight, MapPin, Wind } from 'lucide-react'
 import { GreetingHeader } from '../components/home/GreetingHeader'
 import { useApp } from '../context/AppContext'
 import { QuickActions } from '../components/home/QuickActions'
@@ -10,10 +10,33 @@ import { LeafletMap } from '../components/common/LeafletMap'
 
 export function Home() {
   const navigate = useNavigate()
-  const { allBikes } = useApp()
+  const { allBikes, activeRide } = useApp()
+  const activeBikeName = activeRide?.booking?.bike?.name
+
   return (
     <div className="space-y-6 pb-4 lg:space-y-5 lg:pb-8">
       <GreetingHeader />
+
+      {activeRide && (
+        <div className="px-4 lg:px-0">
+          <Link
+            to="/ride/active"
+            className="flex items-center gap-3 rounded-2xl bg-primary px-4 py-3.5 text-white shadow-lg shadow-primary/35 ring-1 ring-white/20 transition hover:bg-primary/95 active:scale-[0.99] lg:py-3"
+          >
+            <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/20">
+              <Bike className="h-5 w-5" strokeWidth={2} />
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-white shadow-sm ring-2 ring-primary animate-pulse" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-heading text-sm font-extrabold tracking-tight lg:text-base">Ride in progress</p>
+              <p className="truncate text-xs text-white/90 lg:text-sm">
+                {activeBikeName ? `${activeBikeName} · Tap to open live ride` : 'Tap to open your live ride map'}
+              </p>
+            </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-white/90" strokeWidth={2} aria-hidden />
+          </Link>
+        </div>
+      )}
 
       {/* Single unified grid — left: map + eco card; right: actions + bikes + leaderboard */}
       <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-6 xl:gap-8">
