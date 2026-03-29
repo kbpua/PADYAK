@@ -9,13 +9,26 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
+import { recentRidesCount, renterStatsFromRideHistory } from '../../lib/rideStats'
 
 const MONTHLY_GOAL_KM = 50
 
 export function EcoImpactCard() {
-  const { user } = useApp()
-  const s = user.stats
+  const { user, rideHistory } = useApp()
   const g = user.greenEquivalent
+  const derived = renterStatsFromRideHistory(rideHistory)
+  const hasTripData = rideHistory.length > 0
+  const hasRecordedWeek = rideHistory.some((t) => t.recordedAt)
+  const ridesThisWeekLive = hasRecordedWeek ? recentRidesCount(rideHistory, 7) : user.stats.ridesThisWeek
+  const s = hasTripData
+    ? {
+        totalRides: derived.rides,
+        totalDistance: derived.km,
+        totalCO2Saved: derived.co2,
+        ridesThisWeek: ridesThisWeekLive,
+        totalCalories: Math.max(1, Math.round(derived.km * 55)),
+      }
+    : user.stats
   const avgKm = s.totalRides > 0 ? (s.totalDistance / s.totalRides).toFixed(1) : 0
   const goalPct = Math.min((s.totalDistance / MONTHLY_GOAL_KM) * 100, 100)
 

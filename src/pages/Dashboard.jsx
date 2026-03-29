@@ -5,6 +5,7 @@ import { ContextualImpact } from '../components/dashboard/ContextualImpact'
 import { WeeklyChart } from '../components/dashboard/WeeklyChart'
 import { FullLeaderboard } from '../components/dashboard/FullLeaderboard'
 import { useApp } from '../context/AppContext'
+import { renterStatsForRecentDays } from '../lib/rideStats'
 
 function weeklyFromMonth(stats) {
   const totalRides = stats.totalRides ?? 0
@@ -20,10 +21,18 @@ function weeklyFromMonth(stats) {
   }
 }
 
+function weeklySummary(stats, rideHistory) {
+  const recent = renterStatsForRecentDays(rideHistory, 7)
+  if (recent && recent.rides > 0) {
+    return { weekRides: recent.rides, weekCo2: recent.co2, weekKm: recent.km }
+  }
+  return weeklyFromMonth(stats)
+}
+
 export function Dashboard() {
-  const { user } = useApp()
+  const { user, rideHistory } = useApp()
   const displayName = user.firstName?.trim() || user.name?.split(/\s+/)[0] || 'there'
-  const { weekRides, weekCo2, weekKm } = weeklyFromMonth(user.stats)
+  const { weekRides, weekCo2, weekKm } = weeklySummary(user.stats, rideHistory)
   const now = new Date()
   const periodLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
   const monthName = now.toLocaleDateString('en-US', { month: 'long' })

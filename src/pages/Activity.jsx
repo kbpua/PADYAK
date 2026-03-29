@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bike, ChevronRight } from 'lucide-react'
 import { mockActivity } from '../data/user'
 import { useApp } from '../context/AppContext'
+import { RideReceiptModal } from '../components/activity/RideReceiptModal'
 
 const demoBooking = {
   id: 'demo-ride',
@@ -17,6 +18,7 @@ const demoBooking = {
 export function Activity() {
   const navigate = useNavigate()
   const { startRide, rideHistory } = useApp()
+  const [receiptRide, setReceiptRide] = useState(null)
 
   const rides = useMemo(() => [...rideHistory, ...mockActivity], [rideHistory])
 
@@ -31,11 +33,17 @@ export function Activity() {
       <p className="mt-1 text-sm text-charcoal/55">Receipts and trip history</p>
       <div className="mt-6 space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
         {rides.map((a) => (
-          <div
+          <button
             key={a.id}
-            className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5 transition hover:shadow-lg"
+            type="button"
+            onClick={() => setReceiptRide(a)}
+            aria-label={`View receipt — ${a.bikeName}, ${a.date}`}
+            className="group flex w-full cursor-pointer items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-md ring-1 ring-charcoal/5 transition hover:shadow-lg hover:ring-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15">
+            <span
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+              style={{ backgroundColor: `${a.bikeColor || '#22c55e'}26` }}
+            >
               <Bike className="h-6 w-6 text-primary" />
             </span>
             <div className="min-w-0 flex-1">
@@ -45,12 +53,22 @@ export function Activity() {
               </p>
               <p className="text-xs font-mono-data text-teal">{a.distance}</p>
             </div>
-            <span className="rounded-full bg-teal/15 px-2 py-1 text-[10px] font-bold uppercase text-teal">
-              {a.status}
+            <ChevronRight
+              className="h-5 w-5 shrink-0 text-charcoal/25 transition group-hover:text-primary/70"
+              aria-hidden
+            />
+            <span className="shrink-0 rounded-full bg-teal/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-teal">
+              {typeof a.status === 'string' ? a.status : 'completed'}
             </span>
-          </div>
+          </button>
         ))}
       </div>
+
+      <RideReceiptModal
+        open={Boolean(receiptRide)}
+        onClose={() => setReceiptRide(null)}
+        ride={receiptRide}
+      />
       <button
         type="button"
         onClick={goDemoRide}

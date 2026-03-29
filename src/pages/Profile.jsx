@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BadgeCheck,
@@ -13,13 +14,20 @@ import {
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useAuth } from '../context/AuthContext'
+import { ownerStatsFromBikes, renterStatsFromRideHistory } from '../lib/rideStats'
 
 export function Profile() {
   const navigate = useNavigate()
-  const { user, profileRole, setProfileRole, listedBikes } = useApp()
+  const { user, profileRole, setProfileRole, rideHistory, allBikes } = useApp()
   const { isAuthenticated, isSupabaseConfigured, signOut } = useAuth()
   const initial = user.firstName?.[0] ?? user.name?.[0] ?? '?'
   const renter = profileRole === 'renter'
+
+  const renterMetrics = useMemo(() => renterStatsFromRideHistory(rideHistory), [rideHistory])
+  const ownerMetrics = useMemo(
+    () => ownerStatsFromBikes(allBikes, user.name),
+    [allBikes, user.name],
+  )
 
   const menuRows = [
     { to: '/profile/payment-methods', label: 'Payment methods', icon: CreditCard },
@@ -100,9 +108,9 @@ export function Profile() {
             {renter ? (
               <div className="mt-6 grid min-w-0 grid-cols-3 overflow-hidden rounded-2xl bg-charcoal/[0.04] ring-1 ring-charcoal/10 lg:mt-8">
                 {[
-                  { v: user.stats.totalRides, label: 'Rides', c: 'text-primary' },
-                  { v: user.stats.totalDistance, label: 'km', c: 'text-teal' },
-                  { v: user.stats.totalCO2Saved, label: 'kg CO₂', c: 'text-accent' },
+                  { v: renterMetrics.rides, label: 'Rides', c: 'text-primary' },
+                  { v: renterMetrics.km, label: 'km', c: 'text-teal' },
+                  { v: renterMetrics.co2, label: 'kg CO₂', c: 'text-accent' },
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
@@ -125,13 +133,13 @@ export function Profile() {
               <div className="mt-6 grid min-w-0 grid-cols-3 overflow-hidden rounded-2xl bg-charcoal/[0.04] ring-1 ring-charcoal/10 lg:mt-8">
                 {[
                   {
-                    v: user.ownerStats.bikesListed + listedBikes.length,
+                    v: ownerMetrics.bikes,
                     label: 'Bikes',
                     c: 'text-primary',
                   },
-                  { v: user.ownerStats.totalRentals, label: 'Rentals', c: 'text-teal' },
+                  { v: ownerMetrics.rentals, label: 'Rentals', c: 'text-teal' },
                   {
-                    v: `₱${user.ownerStats.totalEarnings}`,
+                    v: `₱${ownerMetrics.earnedPesos.toLocaleString()}`,
                     label: 'Earned',
                     c: 'text-accent',
                     mono: false,

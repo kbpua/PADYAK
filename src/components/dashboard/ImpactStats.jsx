@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Leaf, Route, Sparkles, Trees } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
+import { renterStatsFromRideHistory } from '../../lib/rideStats'
 
 function useCountUp(target, duration = 1000, decimals = 1) {
   const [v, setV] = useState(0)
@@ -20,12 +21,23 @@ function useCountUp(target, duration = 1000, decimals = 1) {
 }
 
 export function ImpactStats() {
-  const { user } = useApp()
+  const { user, rideHistory } = useApp()
   const g = user.greenEquivalent
-  const co2 = useCountUp(user.stats.totalCO2Saved, 1200, 1)
-  const km = useCountUp(user.stats.totalDistance, 1200, 1)
-  const rides = useCountUp(user.stats.totalRides, 1000, 0)
-  const trees = useCountUp(g.treesEquivalent, 1200, 1)
+  const derived = renterStatsFromRideHistory(rideHistory)
+  const hasTripData = rideHistory.length > 0
+  const co2Target = hasTripData ? derived.co2 : user.stats.totalCO2Saved
+  const kmTarget = hasTripData ? derived.km : user.stats.totalDistance
+  const ridesTarget = hasTripData ? derived.rides : user.stats.totalRides
+  const treesTarget =
+    hasTripData && user.stats.totalCO2Saved > 0
+      ? (derived.co2 / user.stats.totalCO2Saved) * g.treesEquivalent
+      : hasTripData
+        ? derived.co2 * (g.treesEquivalent / 2.4)
+        : g.treesEquivalent
+  const co2 = useCountUp(co2Target, 1200, 1)
+  const km = useCountUp(kmTarget, 1200, 1)
+  const rides = useCountUp(ridesTarget, 1000, 0)
+  const trees = useCountUp(treesTarget, 1200, 1)
 
   return (
     <section className="space-y-3 lg:space-y-3.5" aria-labelledby="impact-stats-heading">

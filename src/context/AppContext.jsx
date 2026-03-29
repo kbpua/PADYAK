@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { bikes as seedBikes } from '../data/bikes'
 import { mockUser } from '../data/user'
+import { receiptPaymentLabel } from '../data/paymentMethods'
 import { kalsadaSeedReports } from '../data/kalsadaSeed'
 import { getSeedReviewsForBike } from '../data/reviews'
 import {
@@ -84,17 +85,27 @@ function initialRideHistory() {
 }
 
 /** Snapshot when a live ride ends — matches Activity / mockActivity row shape */
-function tripHistoryEntryFromActiveRide(activeRide) {
+function tripHistoryEntryFromActiveRide(activeRide, paymentMethodId) {
   const booking = activeRide?.booking
   if (!booking?.bike?.name) return null
   const ended = new Date()
+  const pm = paymentMethodId ?? 'gcash'
   return {
     id: `trip-${booking.id}-${ended.getTime()}`,
     bikeName: booking.bike.name,
+    bikeColor: booking.bike.color,
     date: ended.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     time: ended.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    dateLabel: booking.dateLabel,
+    slot: booking.slot,
+    duration: booking.duration,
+    pickup: booking.pickup,
+    total: typeof booking.total === 'number' ? booking.total : undefined,
+    paymentMethod: pm,
+    paymentMethodLabel: receiptPaymentLabel(pm),
     distance: '3.2 km',
     status: 'completed',
+    recordedAt: ended.toISOString(),
   }
 }
 
@@ -117,6 +128,7 @@ export function AppProvider({ children }) {
   const [paymentMethod, setPaymentMethod] = useState('gcash')
   const [activeRide, setActiveRide] = useState(null)
   const activeRideRef = useRef(null)
+  const paymentMethodRef = useRef(paymentMethod)
   const [rideHistory, setRideHistory] = useState(initialRideHistory)
   const [lastBooking, setLastBookingState] = useState(null)
   const [listedBikes, setListedBikes] = useState(initialListedBikes)
@@ -128,6 +140,10 @@ export function AppProvider({ children }) {
   useEffect(() => {
     activeRideRef.current = activeRide
   }, [activeRide])
+
+  useEffect(() => {
+    paymentMethodRef.current = paymentMethod
+  }, [paymentMethod])
 
   useEffect(() => {
     try {
@@ -360,7 +376,7 @@ export function AppProvider({ children }) {
 
   const endRide = useCallback(() => {
     const current = activeRideRef.current
-    const entry = tripHistoryEntryFromActiveRide(current)
+    const entry = tripHistoryEntryFromActiveRide(current, paymentMethodRef.current)
     if (entry) {
       setRideHistory((prev) => [entry, ...prev])
     }
