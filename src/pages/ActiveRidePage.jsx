@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Bike, Home, MapPin, Siren, TrainFront } from 'lucide-react'
+import { Bike, Home, MapPin, TrainFront } from 'lucide-react'
 import { MapPlaceholder } from '../components/common/MapPlaceholder'
 import { RideBottomSheet } from '../components/ride/RideBottomSheet'
 import { SosModal } from '../components/ride/SosModal'
@@ -92,15 +92,6 @@ export function ActiveRidePage() {
             Live ride
           </span>
         </header>
-
-        <button
-          type="button"
-          onClick={openSos}
-          className="fixed right-4 top-[calc(env(safe-area-inset-top,0px)+5.5rem)] z-[25] flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-white shadow-[0_4px_24px_rgba(245,158,11,0.55)] ring-4 ring-white/25 transition hover:bg-amber-600 active:scale-95 lg:hidden"
-          aria-label="SOS — Emergency help"
-        >
-          <Siren className="h-7 w-7" strokeWidth={2} />
-        </button>
       </div>
       <SosModal
         open={sosOpen}
