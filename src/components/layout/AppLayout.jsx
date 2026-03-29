@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { BottomNav } from './BottomNav'
 import { Sidebar } from './Sidebar'
@@ -7,6 +8,14 @@ const immersivePaths = ['/explore', '/ride/active']
 
 export function AppLayout({ children }) {
   const { pathname } = useLocation()
+  const mainRef = useRef(null)
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [pathname])
   const isOnboarding = pathname === '/'
   const hideSidebar = pathname === '/login'
   const hideBottomNav = isOnboarding || pathname === '/ride/active' || pathname === '/login'
@@ -25,6 +34,7 @@ export function AppLayout({ children }) {
       {!isOnboarding && !hideSidebar && <Sidebar />}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <main
+          ref={mainRef}
           className={`flex min-h-0 flex-1 flex-col ${
             fullBleedMain
               ? 'overflow-hidden lg:p-0'

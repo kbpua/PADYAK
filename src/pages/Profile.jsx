@@ -218,13 +218,6 @@ export function Profile() {
               </Link>
             ) : null}
           </div>
-
-          <Link
-            to="/dashboard"
-            className="block rounded-2xl bg-charcoal py-4 text-center font-heading text-sm font-bold text-white shadow-lg transition hover:bg-charcoal/90 lg:rounded-3xl lg:py-5 lg:text-base"
-          >
-            Open Eco Dashboard
-          </Link>
         </div>
       </div>
     </div>

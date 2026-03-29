@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BadgeCheck, Bike, Heart, MessageCircle } from 'lucide-react'
 import { GreenRouteCard } from '../components/bike/GreenRouteCard'
+import { LateReturnRateNotice } from '../components/bike/LateReturnRateNotice'
 import { AvailabilityCalendar } from '../components/bike/AvailabilityCalendar'
 import { RatingStars } from '../components/common/RatingStars'
 import { PillBadge } from '../components/common/PillBadge'
@@ -62,6 +63,45 @@ export function BikeDetailPage() {
   }
 
   const heroPhoto = bike.photos?.[0]
+
+  const reviewsSection = (
+    <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5 lg:p-4 xl:p-5">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <h3 className="font-heading text-sm font-bold text-charcoal lg:text-[13px] xl:text-base">Reviews</h3>
+        <span className="text-sm font-bold text-charcoal lg:text-[13px] xl:text-base">
+          ★ {avg}{' '}
+          <span className="text-xs font-normal text-charcoal/50">({reviews.length})</span>
+        </span>
+      </div>
+      <div
+        className={`mt-3 space-y-3 pr-0.5 lg:mt-3 xl:space-y-4 ${
+          reviews.length > 2
+            ? 'max-h-[12.5rem] overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] sm:max-h-[13rem] lg:max-h-[13.25rem] xl:max-h-[14rem]'
+            : ''
+        }`}
+        role={reviews.length > 2 ? 'region' : undefined}
+        aria-label={reviews.length > 2 ? 'Reviews — two visible, scroll for more' : undefined}
+      >
+        {reviews.map((r) => (
+          <div key={r.id} className="border-t border-charcoal/5 pt-3 first:border-0 first:pt-0 xl:pt-4">
+            <div className="flex gap-2.5 xl:gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-charcoal/10 text-[11px] font-bold xl:h-9 xl:w-9 xl:text-xs">
+                {r.author[0]}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-bold text-charcoal lg:text-sm xl:text-base">{r.author}</p>
+                <div className="mt-0.5">
+                  <RatingStars value={r.rating} size={11} />
+                </div>
+                <p className="mt-0.5 text-[10px] text-charcoal/45 lg:text-[11px]">{r.date}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-charcoal/75 lg:text-sm xl:text-base">{r.text}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 
   const hero = (
     <div className="relative">
@@ -135,9 +175,20 @@ export function BikeDetailPage() {
         <p className="mt-3 text-sm text-charcoal/70 lg:text-base">
           📍 {bike.location.barangay}, {bike.location.city} — {bike.location.distance} away
         </p>
-        <p className="mt-2 font-heading text-2xl font-bold text-primary lg:text-3xl">
-          ₱{bike.pricePerHour}/hr · ₱{bike.pricePerDay}/day
-        </p>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="font-heading text-2xl font-extrabold tracking-tight text-primary lg:text-3xl xl:text-4xl">
+            ₱{bike.pricePerDay}/day
+          </span>
+          <span className="text-lg font-normal text-charcoal/25 lg:text-xl" aria-hidden>
+            ·
+          </span>
+          <span className="font-heading text-lg font-bold text-orange-600 lg:text-2xl">
+            ₱{bike.pricePerHour}/hr
+          </span>
+        </div>
+        <div className="mt-4">
+          <LateReturnRateNotice pricePerHour={bike.pricePerHour} variant="card" />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:gap-3">
@@ -167,65 +218,51 @@ export function BikeDetailPage() {
         <GreenRouteCard />
       </div>
 
-      <AvailabilityCalendar bike={bike} selected={slot} onSelect={setSlot} />
+      <div className="lg:hidden">{reviewsSection}</div>
 
-      <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-charcoal/5 lg:p-6">
-        <div className="flex items-center justify-between">
-          <h3 className="font-heading text-sm font-bold text-charcoal lg:text-base">Reviews</h3>
-          <span className="text-sm font-bold text-charcoal lg:text-base">
-            ★ {avg}{' '}
-            <span className="text-xs font-normal text-charcoal/50">({reviews.length})</span>
-          </span>
-        </div>
-        <div className="mt-4 space-y-4">
-          {reviews.map((r) => (
-            <div key={r.id} className="border-t border-charcoal/5 pt-4 first:border-0 first:pt-0">
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-charcoal/10 text-xs font-bold">
-                  {r.author[0]}
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-charcoal lg:text-base">{r.author}</p>
-                  <p className="text-[11px] text-charcoal/45">{r.date}</p>
-                </div>
-                <span className="ml-auto">
-                  <RatingStars value={r.rating} size={11} />
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-charcoal/75 lg:text-base">{r.text}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <AvailabilityCalendar bike={bike} selected={slot} onSelect={setSlot} />
     </>
   )
 
   const bookBar = (
     <div className="fixed bottom-0 left-0 right-0 z-30 min-w-0 rounded-t-2xl border-t border-charcoal/10 bg-white/95 px-4 pt-2.5 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-lg max-lg:pb-[calc(5.375rem+env(safe-area-inset-bottom,0px))] sm:pt-3 lg:static lg:bottom-auto lg:z-0 lg:w-full lg:max-w-full lg:rounded-2xl lg:border lg:p-5 lg:shadow-lg lg:shadow-charcoal/5 xl:p-6">
-      <div className="mx-auto flex w-full min-w-0 max-w-lg flex-col gap-2 sm:max-w-none lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-x-4">
-        <div className="shrink-0 leading-none lg:justify-self-start">
-          <p className="text-[11px] text-charcoal/50 sm:text-xs lg:text-sm">From</p>
-          <p className="font-mono-data text-base font-bold text-primary sm:text-lg lg:text-2xl">₱{bike.pricePerHour}/hr</p>
+      <div className="mx-auto flex w-full min-w-0 max-w-lg flex-col gap-2 sm:max-w-none">
+        <div className="flex w-full min-w-0 flex-col gap-3 sm:max-w-none lg:flex-row lg:items-center lg:justify-between lg:gap-6 xl:gap-8">
+          <div className="min-w-0 shrink-0 leading-none">
+            <p className="text-[11px] text-charcoal/50 sm:text-xs lg:text-sm">From</p>
+            <p className="font-mono-data text-base font-bold tabular-nums text-primary sm:text-lg lg:text-2xl lg:whitespace-nowrap">
+              ₱{bike.pricePerDay}/day
+            </p>
+            <p
+              className="mt-0.5 font-mono-data text-xs font-semibold tabular-nums text-orange-600 sm:text-sm lg:whitespace-nowrap"
+              title="Per hour after your booked return time"
+            >
+              ₱{bike.pricePerHour}/hr if late
+            </p>
+          </div>
+          <div className="flex min-w-0 w-full flex-row items-stretch justify-stretch gap-2 sm:gap-3 lg:min-w-0 lg:flex-1 lg:items-center lg:justify-end">
+            <button
+              type="button"
+              onClick={messageOwner}
+              aria-label="Message owner"
+              className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-charcoal/15 bg-white px-2.5 py-2 text-center font-heading text-xs font-bold leading-tight text-charcoal transition active:scale-[0.98] sm:min-h-12 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm lg:min-w-[11rem] lg:flex-none lg:px-6"
+            >
+              <MessageCircle className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" strokeWidth={2} />
+              <span className="min-w-0 text-center leading-tight">Message Owner</span>
+            </button>
+            <button
+              type="button"
+              onClick={book}
+              aria-label="Book this ride"
+              className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-transparent bg-primary px-2.5 py-2 text-center font-heading text-xs font-bold leading-tight text-white shadow-md shadow-primary/20 transition active:scale-[0.98] sm:min-h-12 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-lg sm:shadow-primary/25 lg:min-w-[11rem] lg:flex-none lg:px-6"
+            >
+              <span className="min-w-0 text-center leading-tight">Book This Ride</span>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" strokeWidth={2} />
+            </button>
+          </div>
         </div>
-        <div className="flex min-w-0 w-full flex-row items-stretch justify-center gap-2 lg:w-auto lg:max-w-full lg:justify-center">
-          <button
-            type="button"
-            onClick={messageOwner}
-            aria-label="Message owner"
-            className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-charcoal/15 bg-white px-2.5 py-2 text-center font-heading text-xs font-bold leading-tight text-charcoal transition active:scale-[0.98] sm:min-h-12 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm lg:min-w-[11rem] lg:flex-none lg:px-6"
-          >
-            <MessageCircle className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" strokeWidth={2} />
-            <span className="min-w-0 text-center leading-tight">Message Owner</span>
-          </button>
-          <button
-            type="button"
-            onClick={book}
-            aria-label="Book this ride"
-            className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-transparent bg-primary px-2.5 py-2 text-center font-heading text-xs font-bold leading-tight text-white shadow-md shadow-primary/20 transition active:scale-[0.98] sm:min-h-12 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-lg sm:shadow-primary/25 lg:min-w-[11rem] lg:flex-none lg:px-6"
-          >
-            <span className="min-w-0 text-center leading-tight">Book This Ride</span>
-            <ArrowRight className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" strokeWidth={2} />
-          </button>
+        <div className="lg:hidden">
+          <LateReturnRateNotice pricePerHour={bike.pricePerHour} variant="compact" />
         </div>
       </div>
     </div>
@@ -237,8 +274,9 @@ export function BikeDetailPage() {
         <div className="min-w-0 lg:col-span-5 xl:col-span-5">
           <div className="lg:sticky lg:top-6 lg:space-y-6">
             {hero}
-            <div className="hidden lg:block">
+            <div className="hidden min-w-0 space-y-5 lg:block xl:space-y-6">
               <GreenRouteCard />
+              {reviewsSection}
             </div>
           </div>
         </div>

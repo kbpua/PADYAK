@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Bike, CheckCircle2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useMessages } from '../context/MessagesContext'
+import { LateReturnRateNotice } from '../components/bike/LateReturnRateNotice'
 import { MapPlaceholder } from '../components/common/MapPlaceholder'
 import { paymentMethodOptions } from '../data/paymentMethods'
 
@@ -114,6 +115,9 @@ export function BookingConfirm() {
             <span>Total</span>
             <span className="text-primary">₱{total}</span>
           </div>
+        </div>
+        <div className="mt-4">
+          <LateReturnRateNotice pricePerHour={bike.pricePerHour} variant="inline" />
         </div>
       </div>
 

@@ -38,13 +38,21 @@ export function Home() {
         </div>
       )}
 
-      {/* Single unified grid — left: map + eco card; right: actions + bikes + leaderboard */}
-      <div className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-6 xl:gap-8">
+      {/*
+        Mobile: quick actions + bikes first (above map), then map + eco, then leaderboard — easier scanning.
+        Desktop (lg+): classic two columns — map + eco left; actions + bikes + leaderboard right.
+      */}
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:items-start lg:gap-6 xl:gap-8">
+        {/* Mobile order-1 / Desktop right column (top) */}
+        <aside className="order-1 space-y-5 px-4 lg:order-2 lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:px-0 lg:pt-0 xl:col-span-5">
+          <QuickActions />
+          <NearbyBikes />
+        </aside>
 
-        {/* ── LEFT COLUMN ── */}
-        <div className="lg:col-span-6 xl:col-span-7">
+        {/* Mobile order-2 / Desktop left column — row-span-2 aligns with stacked right cells */}
+        <div className="order-2 space-y-4 lg:order-1 lg:col-span-6 lg:row-span-2 lg:row-start-1 lg:space-y-4 xl:col-span-7">
           <section className="px-4 lg:px-0">
-            <div className="relative h-56 w-full overflow-hidden rounded-2xl ring-1 ring-charcoal/10 md:h-64 lg:h-[min(300px,calc(100vh-8.5rem))] lg:min-h-[240px] xl:min-h-[260px] [&_.leaflet-container]:bg-slate-100">
+            <div className="relative h-52 w-full overflow-hidden rounded-2xl ring-1 ring-charcoal/10 sm:h-56 md:h-64 lg:h-[min(300px,calc(100vh-8.5rem))] lg:min-h-[240px] xl:min-h-[260px] [&_.leaflet-container]:bg-slate-100">
               <LeafletMap
                 className="z-0 h-full min-h-[200px] w-full"
                 filteredBikes={allBikes}
@@ -72,18 +80,13 @@ export function Home() {
               </div>
             </div>
           </section>
-          <div className="mt-4 lg:mt-4">
-            <EcoImpactCard />
-          </div>
+          <EcoImpactCard />
         </div>
 
-        {/* ── RIGHT COLUMN ── */}
-        <aside className="mt-4 space-y-5 px-4 lg:col-span-6 lg:mt-0 lg:space-y-5 lg:px-0 xl:col-span-5">
-          <QuickActions />
-          <NearbyBikes />
+        {/* Mobile order-3 / Desktop right column (below bikes) */}
+        <aside className="order-3 px-4 lg:order-2 lg:col-span-6 lg:col-start-7 lg:row-start-2 lg:px-0 xl:col-span-5">
           <LeaderboardPreview />
         </aside>
-
       </div>
     </div>
   )

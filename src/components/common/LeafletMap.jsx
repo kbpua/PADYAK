@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { bikes } from '../../data/bikes'
+import { effectiveDailyRatePesos } from '../../lib/bikePricing'
 
 function bikeIcon(color = '#22C55E') {
   const svg = `
@@ -67,28 +68,31 @@ export function LeafletMap({
       <FitBounds positions={positions} />
       {filteredBikes
         .filter((b) => b.location.lat && b.location.lng)
-        .map((bike) => (
-          <Marker
-            key={bike.id}
-            position={[bike.location.lat, bike.location.lng]}
-            icon={bikeIcon(bike.color)}
-            eventHandlers={{
-              click: () => onMarkerClick?.(bike),
-            }}
-          >
-            {!onMarkerClick && (
-              <Popup className="bike-popup" closeButton={false}>
-                <div className="min-w-[160px] p-1 text-center">
-                  <p className="font-heading text-sm font-bold text-charcoal">{bike.name}</p>
-                  <p className="text-xs text-charcoal/60">{bike.location.barangay}</p>
-                  <p className="mt-1 font-heading text-sm font-bold text-primary">
-                    ₱{bike.pricePerHour}/hr
-                  </p>
-                </div>
-              </Popup>
-            )}
-          </Marker>
-        ))}
+        .map((bike) => {
+          const dayRate = effectiveDailyRatePesos(bike)
+          return (
+            <Marker
+              key={bike.id}
+              position={[bike.location.lat, bike.location.lng]}
+              icon={bikeIcon(bike.color)}
+              eventHandlers={{
+                click: () => onMarkerClick?.(bike),
+              }}
+            >
+              {!onMarkerClick && (
+                <Popup className="bike-popup" closeButton={false}>
+                  <div className="min-w-[160px] p-1 text-center">
+                    <p className="font-heading text-sm font-bold text-charcoal">{bike.name}</p>
+                    <p className="text-xs text-charcoal/60">{bike.location.barangay}</p>
+                    <p className="mt-1 font-heading text-sm font-bold text-primary">
+                      {dayRate != null ? `₱${dayRate}/day` : '—'}
+                    </p>
+                  </div>
+                </Popup>
+              )}
+            </Marker>
+          )
+        })}
     </MapContainer>
   )
 }

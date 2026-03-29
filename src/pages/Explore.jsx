@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { LeafletMap } from '../components/common/LeafletMap'
+import { effectiveDailyRatePesos } from '../lib/bikePricing'
 import { useApp } from '../context/AppContext'
 import { DraggableSheet } from '../components/common/DraggableSheet'
 
@@ -26,7 +27,9 @@ function bikeMatchesQuery(bike, q) {
 function ExploreBikeList({ list, className = '' }) {
   return (
     <div className={`space-y-3 ${className}`}>
-      {list.map((bike) => (
+      {list.map((bike) => {
+        const dayRate = effectiveDailyRatePesos(bike)
+        return (
         <Link
           key={bike.id}
           to={`/bike/${bike.id}`}
@@ -46,12 +49,13 @@ function ExploreBikeList({ list, className = '' }) {
           </div>
           <div className="text-right">
             <p className="font-mono-data text-sm font-bold text-primary lg:text-base">
-              ₱{bike.pricePerHour}/hr
+              {dayRate != null ? `₱${dayRate}/day` : '—'}
             </p>
             <p className="text-[10px] text-charcoal/45 lg:text-xs">★ {bike.rating}</p>
           </div>
         </Link>
-      ))}
+        )
+      })}
     </div>
   )
 }

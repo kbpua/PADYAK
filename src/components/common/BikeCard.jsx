@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Bike } from 'lucide-react'
+import { effectiveDailyRatePesos } from '../../lib/bikePricing'
 import { RatingStars } from './RatingStars'
 
 function initials(name) {
@@ -12,6 +13,7 @@ function initials(name) {
 }
 
 export function BikeCard({ bike }) {
+  const dayRate = effectiveDailyRatePesos(bike)
   return (
     <Link
       to={`/bike/${bike.id}`}
@@ -38,7 +40,9 @@ export function BikeCard({ bike }) {
         </div>
         <div className="mt-auto flex items-center justify-between text-[11px] lg:text-xs">
           <span className="text-charcoal/55">{bike.location.distance}</span>
-          <span className="font-heading font-bold text-primary">₱{bike.pricePerHour}/hr</span>
+          <span className="font-heading font-bold text-primary">
+            {dayRate != null ? `₱${dayRate}/day` : '—'}
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
           <RatingStars value={bike.rating} size={11} />
