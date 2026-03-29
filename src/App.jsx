@@ -1,3 +1,5 @@
+// The base code for the application is made by AI.
+
 import { Loader2 } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { AppLayout } from './components/layout/AppLayout'
